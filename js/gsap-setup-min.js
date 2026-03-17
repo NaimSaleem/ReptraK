@@ -1,0 +1,1 @@
+const container=document.getElementById("particles");function createParticle(){const e=document.createElement("div");e.className="particle",container.appendChild(e),gsap.to(e,{y:1.3*-window.innerHeight,duration:7+5*Math.random(),ease:"none",onComplete:()=>e.remove()})}for(let e=0;e<8;e++)setTimeout(createParticle,400*e);setInterval(createParticle,1600);

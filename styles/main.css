@@ -1,0 +1,103 @@
+.phone {
+  width: 402px;
+  height: 874px;
+  background: #23214D;
+  border-radius: 60px;
+  border: 14px solid #111;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+  margin: 40px auto;
+}
+
+#particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  color: #6FD9FF;
+  opacity: 0.22;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(35, 33, 77, 0.9), rgba(35, 33, 77, 0.95));
+  display: none;
+  z-index: 10;
+  padding: 80px 20px 40px;
+  text-align: center;
+}
+
+.screen.active {
+  display: block;
+}
+
+.glass-btn {
+  background: #6FD9FF;
+  color: #23214D;
+  padding: 16px 40px;
+  border-radius: 35px;
+  font-weight: 700;
+  box-shadow: 0 0 30px rgba(111, 217, 255, 0.65);
+  margin: 15px auto;
+  display: block;
+  width: fit-content;
+  border: none;
+  font-size: 17px;
+}
+
+.glass-btn.small {
+  padding: 12px 28px;
+  font-size: 15px;
+}
+
+.glass-btn.primary {
+  background: #31ED82;
+}
+
+.glass-btn.secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid #6FD9FF;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 14px 18px;
+  border-radius: 20px;
+  width: 80%;
+  margin: 20px auto;
+  display: block;
+  font-size: 18px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 25px;
+  padding: 25px;
+  margin: 30px auto;
+  width: 85%;
+}
+
+.logo {
+  font-size: 52px;
+  font-weight: 700;
+  color: #6FD9FF;
+  text-align: center;
+  margin-top: 120px;
+  text-shadow: 0 0 30px rgba(111, 217, 255, 0.65);
+}
+
+.tagline, h2, .unit {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 10px 0;
+}

@@ -1,0 +1,36 @@
+.phone {
+    width: 402px;
+    height: 874px;
+    background: $dark;
+    border-radius: 60px;
+    border: 14px solid #111;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    margin: 40px auto;
+  }
+  
+  #particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .particle {
+    position: absolute;
+    color: $accent;
+    opacity: 0.22;
+  }
+  
+  .screen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(35,33,77,0.9), rgba(35,33,77,0.95));
+    display: none;
+    z-index: 10;
+    padding: 80px 20px 40px;
+    text-align: center;
+  }
+  
+  .screen.active { display: block; }
