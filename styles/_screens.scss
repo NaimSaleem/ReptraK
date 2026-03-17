@@ -1,53 +1,943 @@
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(35, 33, 77, 0.34), rgba(17, 19, 44, 0.76) 40%, rgba(18, 19, 40, 0.94) 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen.active {
+  display: block;
+}
+
+.screen-grid {
+  position: relative;
+  z-index: 2;
+  min-height: 100%;
+  height: auto;
+  padding: 32px $outer-padding 26px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: $grid-gutter;
+  align-content: start;
+  gap: 16px;
+}
+
+.landing-grid {
+  padding-top: 22px;
+}
+
+.dashboard-grid {
+  padding-top: 28px;
+}
+
+.topbar,
+.hero-copy,
+.feature-cluster,
+.cta-stack,
+.panel,
+.hero-card,
+.coach-card,
+.activity-card,
+.calendar-card,
+.profile-card,
+.price-stack,
+.metrics-strip,
+.weekly-card,
+.insight-grid,
+.chart-card,
+.bible-card,
+.premium-card,
+.bottom-nav {
+  grid-column: 1 / -1;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.topbar-title,
+.topbar-heading {
+  margin: 0;
+  font-family: "Nunito", sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.topbar-heading {
+  font-size: 28px;
+}
+
+.topbar-landing {
+  align-items: flex-start;
+}
+
+.brand-mark,
+.eyebrow,
+.section-kicker,
+.stat-card__label {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(230, 251, 255, 0.78);
+}
+
+.logo {
+  margin: 4px 0 8px;
+  font-family: "Nunito", sans-serif;
+  font-size: 54px;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  color: $accent-strong;
+  text-shadow: 0 0 34px rgba(111, 217, 255, 0.42);
+}
+
+.tagline,
+.supporting-copy,
+#habit-summary,
+.insight-card p,
+.bible-card p,
+.premium-card p,
+.stat-card__meta {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-soft;
+}
+
+.hero-orb {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 208px;
+  height: 208px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.92), rgba(183, 247, 255, 0.78) 18%, rgba(111, 217, 255, 0.42) 36%, rgba(69, 134, 255, 0.18) 54%, rgba(35, 33, 77, 0) 76%);
+  box-shadow:
+    0 18px 55px rgba(25, 12, 74, 0.46),
+    0 0 70px rgba(117, 232, 255, 0.3),
+    inset 0 20px 40px rgba(255, 255, 255, 0.22);
+  position: relative;
+  margin-top: 12px;
+}
+
+.hero-orb__glare {
+  position: absolute;
+  inset: 22px 60px auto 44px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0));
+  transform: rotate(-14deg);
+}
+
+.hero-orb__core {
+  position: absolute;
+  inset: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(16px);
+}
+
+.hero-orb__label {
+  font-family: "Nunito", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.hero-copy {
+  text-align: center;
+}
+
+.feature-cluster,
+.metrics-strip,
+.insight-grid,
+.premium-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.glass-card,
+.glass-btn,
+.glass-input,
+.mini-glass-btn,
+.nav-pill,
+.frequency-pill,
+.glass-chip,
+.progress-ring,
+.premium-badge {
+  position: relative;
+  border: 1px solid $glass-border;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+  box-shadow: $shadow-soft, $shadow-glow, $inner-gloss;
+  backdrop-filter: $blur-strong;
+}
+
+.glass-card {
+  border-radius: $radius-lg;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.glass-card::before,
+.glass-btn::before,
+.mini-glass-btn::before,
+.nav-pill::before,
+.frequency-pill::before,
+.glass-chip::before,
+.progress-ring::before,
+.premium-badge::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 48%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.03));
+  pointer-events: none;
+}
+
+.stat-card {
+  min-height: 108px;
+}
+
+.stat-card--wide {
+  grid-column: 1 / -1;
+}
+
+.stat-card__value,
+.metric-card strong,
+.insight-card h3,
+.premium-card h2,
+.panel h2,
+.hero-card h3,
+.chart-card h3,
+.weekly-card h3 {
+  display: block;
+  margin-top: 6px;
+  font-family: "Nunito", sans-serif;
+  font-size: 25px;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: $text-main;
+}
+
+.cta-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.cta-stack--dashboard {
+  margin-bottom: 8px;
+}
+
+.glass-btn,
+.mini-glass-btn,
+.frequency-pill,
+.glass-chip,
+.nav-pill {
+  border-radius: 999px;
+  color: $text-main;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.glass-btn:hover,
+.mini-glass-btn:hover,
+.frequency-pill:hover,
+.glass-chip:hover,
+.nav-pill:hover {
+  transform: translateY(-1px);
+}
+
 .glass-btn {
-    background: $accent;
-    color: $dark;
-    padding: 16px 40px;
-    border-radius: 35px;
-    font-weight: 700;
-    box-shadow: $glow;
-    margin: 15px auto;
-    display: block;
-    width: fit-content;
+  width: 100%;
+  padding: 17px 22px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.glass-btn--primary {
+  background:
+    linear-gradient(180deg, rgba(197, 250, 255, 0.58), rgba(111, 217, 255, 0.3)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  color: #13203e;
+}
+
+.glass-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: $text-main;
+}
+
+.mini-glass-btn {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.mini-glass-btn--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.panel--hero {
+  padding-top: 22px;
+  margin-top: 24px;
+}
+
+.input-label {
+  display: block;
+  margin: 16px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(235, 249, 255, 0.72);
+}
+
+.glass-input {
+  width: 100%;
+  border-radius: 24px;
+  padding: 16px 18px;
+  color: $text-main;
+  outline: none;
+}
+
+.glass-input::placeholder {
+  color: rgba(236, 244, 255, 0.42);
+}
+
+.chip-grid,
+.frequency-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.glass-chip,
+.frequency-pill {
+  padding: 14px 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.glass-chip.is-selected,
+.frequency-pill.is-selected,
+.nav-pill.is-active {
+  background:
+    linear-gradient(180deg, rgba(201, 252, 255, 0.52), rgba(111, 217, 255, 0.18)),
+    rgba(255, 255, 255, 0.12);
+  color: #112248;
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  align-items: center;
+  gap: 12px;
+  padding: 22px;
+  min-height: 146px;
+  overflow: visible;
+}
+
+.hero-card__copy h3 {
+  margin: 6px 0;
+  font-size: 34px;
+  line-height: 1.02;
+}
+
+.coach-card {
+  padding-top: 18px;
+}
+
+.coach-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(237, 246, 255, 0.82);
+}
+
+.progress-ring {
+  width: 108px;
+  height: 108px;
+  margin-left: auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.88), rgba(167, 245, 255, 0.46) 18%, rgba(111, 217, 255, 0.18) 34%, rgba(35, 33, 77, 0) 68%),
+    conic-gradient(from 0deg, rgba(111, 217, 255, 0.95) 0deg, rgba(111, 217, 255, 0.85) var(--progress-angle, 295deg), rgba(255, 255, 255, 0.12) var(--progress-angle, 295deg), rgba(255, 255, 255, 0.12) 360deg);
+}
+
+.progress-ring::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(41, 42, 86, 0.98), rgba(27, 28, 58, 0.95));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.progress-ring span {
+  position: relative;
+  z-index: 1;
+  font-family: "Nunito", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.metrics-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric-card {
+  text-align: center;
+  padding: 16px 12px;
+}
+
+.metric-card span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(240, 248, 255, 0.66);
+}
+
+.metric-card strong {
+  font-size: 28px;
+}
+
+.section-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-header > div {
+  min-width: 0;
+}
+
+.section-header h3 {
+  margin: 4px 0 0;
+  line-height: 1.08;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.day-cell {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.day-cell span {
+  font-size: 11px;
+  color: rgba(239, 249, 255, 0.64);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.day-cell b {
+  width: 100%;
+  aspect-ratio: 1 / 1.2;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.day-cell.is-complete b {
+  background:
+    linear-gradient(180deg, rgba(207, 252, 255, 0.68), rgba(111, 217, 255, 0.28)),
+    rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 24px rgba(111, 217, 255, 0.2), inset 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.day-cell.is-selected b {
+  outline: 2px solid rgba(255, 255, 255, 0.46);
+  outline-offset: 2px;
+}
+
+.insight-card,
+.bible-card {
+  min-height: 142px;
+}
+
+.activity-list {
+  display: grid;
+  gap: 12px;
+}
+
+.activity-row {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.activity-row__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.activity-row__title {
+  margin: 0;
+  font-family: "Nunito", sans-serif;
+  font-size: 21px;
+  letter-spacing: -0.03em;
+}
+
+.activity-row__meta {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: $text-soft;
+}
+
+.activity-row__badge {
+  min-width: 64px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.1);
+  color: $text-main;
+}
+
+.activity-row__controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.activity-control {
+  display: grid;
+  gap: 6px;
+}
+
+.activity-control label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(235, 249, 255, 0.72);
+}
+
+.activity-control input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: $text-main;
+}
+
+.activity-control input::placeholder {
+  color: rgba(236, 244, 255, 0.36);
+}
+
+.view-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.view-pill {
+  padding: 12px 10px;
+  border-radius: 999px;
+  border: 1px solid $glass-border;
+  background: rgba(255, 255, 255, 0.08);
+  color: $text-main;
+  font-weight: 700;
+}
+
+.view-pill.is-active {
+  background: linear-gradient(180deg, rgba(201, 252, 255, 0.52), rgba(111, 217, 255, 0.18)), rgba(255, 255, 255, 0.12);
+  color: #112248;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.month-cell {
+  appearance: none;
+  aspect-ratio: 1 / 1.05;
+  border-radius: 16px;
+  padding: 8px 6px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  font-weight: 700;
+  color: $text-main;
+  cursor: pointer;
+}
+
+.month-cell span {
+  font-size: 11px;
+  color: rgba(240, 248, 255, 0.72);
+}
+
+.month-cell strong {
+  font-family: "Nunito", sans-serif;
+  font-size: 15px;
+  letter-spacing: -0.03em;
+}
+
+.month-cell--selected {
+  outline: 2px solid rgba(255, 255, 255, 0.44);
+  outline-offset: 2px;
+}
+
+.month-cell--low {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.42), rgba(241, 115, 56, 0.2));
+}
+
+.month-cell--mid {
+  background: linear-gradient(180deg, rgba(255, 227, 116, 0.48), rgba(255, 190, 74, 0.2));
+}
+
+.month-cell--complete {
+  background: linear-gradient(180deg, rgba(89, 235, 136, 0.46), rgba(37, 190, 108, 0.2));
+}
+
+.day-focus-card {
+  grid-column: 1 / -1;
+  padding: 20px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.day-focus-card h3 {
+  margin: 4px 0 10px;
+}
+
+.day-focus-card p {
+  margin: 0;
+  color: rgba(237, 246, 255, 0.82);
+  line-height: 1.55;
+}
+
+.day-focus-card__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: rgba(236, 244, 255, 0.72);
+}
+
+.day-focus-card__stats strong {
+  font-family: "Nunito", sans-serif;
+  font-size: 22px;
+  color: $text-main;
+}
+
+.activity-card,
+.calendar-card,
+.weekly-card,
+.profile-card,
+.premium-card {
+  overflow: visible;
+}
+
+.profile-card {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.liquid-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.liquid-button__glass {
+  position: relative;
+  display: block;
+  width: min(280px, 100%);
+  height: 280px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  box-shadow:
+    0 24px 60px rgba(7, 10, 29, 0.42),
+    0 0 52px rgba(111, 217, 255, 0.22),
+    inset 0 2px 14px rgba(255, 255, 255, 0.24);
+}
+
+.liquid-button__glass::before {
+  content: "";
+  position: absolute;
+  inset: 22px 52px auto 46px;
+  height: 42px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0));
+  transform: rotate(-12deg);
+  z-index: 3;
+}
+
+.liquid-button__fill,
+.liquid-button__wave {
+  position: absolute;
+  left: -8%;
+  width: 116%;
+  border-radius: 44% 56% 50% 50%;
+  transition: background 220ms ease;
+}
+
+.liquid-button__fill {
+  bottom: -48%;
+  height: 160%;
+  background: var(--liquid-color, linear-gradient(180deg, rgba(255, 206, 111, 0.9), rgba(255, 170, 48, 0.55)));
+  z-index: 1;
+}
+
+.liquid-button__wave {
+  bottom: 8%;
+  height: 48%;
+  background: rgba(255, 255, 255, 0.16);
+  z-index: 2;
+  transform-origin: center;
+}
+
+.liquid-button__wave--one {
+  bottom: 18%;
+}
+
+.liquid-button__wave--two {
+  bottom: 10%;
+  opacity: 0.5;
+}
+
+.liquid-button__label {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  font-family: "Nunito", sans-serif;
+  font-size: 54px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.activity-list--profile .activity-row {
+  padding: 14px 16px;
+}
+
+.price-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 16px;
+}
+
+.price-pill {
+  padding: 16px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.price-pill span,
+.price-pill em {
+  display: block;
+  color: $text-soft;
+}
+
+.price-pill strong {
+  display: block;
+  margin: 8px 0 4px;
+  font-family: "Nunito", sans-serif;
+  font-size: 32px;
+  letter-spacing: -0.04em;
+}
+
+.chart-bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 10px;
+  min-height: 180px;
+}
+
+.chart-bar {
+  position: relative;
+  min-height: 70px;
+  border-radius: 24px 24px 18px 18px;
+  background:
+    linear-gradient(180deg, rgba(220, 253, 255, 0.7), rgba(111, 217, 255, 0.18)),
+    rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.chart-bar span {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(238, 248, 255, 0.64);
+}
+
+.chart-bar--1 { height: 48%; }
+.chart-bar--2 { height: 72%; }
+.chart-bar--3 { height: 58%; }
+.chart-bar--4 { height: 84%; }
+.chart-bar--5 { height: 66%; }
+.chart-bar--6 { height: 41%; }
+.chart-bar--7 { height: 54%; }
+
+.premium-card {
+  padding-top: 24px;
+}
+
+.premium-grid {
+  margin: 18px 0 20px;
+}
+
+.premium-badge {
+  min-height: 88px;
+  border-radius: 26px;
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  padding: 14px;
+  text-align: center;
+}
+
+.premium-badge i {
+  font-size: 22px;
+  color: $accent-strong;
+}
+
+.premium-badge span {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(244, 250, 255, 0.88);
+}
+
+.bottom-nav {
+  margin-top: 4px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+  padding: 8px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(16, 18, 43, 0.08), rgba(16, 18, 43, 0.44));
+  backdrop-filter: blur(12px);
+}
+
+.nav-pill {
+  min-height: 58px;
+  padding: 10px 12px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(241, 247, 255, 0.84);
+}
+
+.nav-pill i {
+  font-size: 16px;
+}
+
+@media (max-width: 460px) {
+  body {
+    padding: 0;
+  }
+
+  .phone {
+    width: 100vw;
+    min-height: 100vh;
     border: none;
-    font-size: 17px;
+    border-radius: 0;
   }
-  
-  .glass-btn.small { padding: 12px 28px; font-size: 15px; }
-  .glass-btn.primary { background: #31ED82; }
-  .glass-btn.secondary { background: transparent; color: white; border: 2px solid $accent; }
-  
-  .glass-input {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid $glass-border;
-    color: white;
-    padding: 14px 18px;
-    border-radius: 20px;
-    width: 80%;
-    margin: 20px auto;
-    display: block;
-    font-size: 18px;
+
+  .screen-grid {
+    padding-bottom: 120px;
   }
-  
-  .glass-card {
-    background: $glass-bg;
-    backdrop-filter: blur(20px);
-    border: 1px solid $glass-border;
-    border-radius: 25px;
-    padding: 25px;
-    margin: 30px auto;
-    width: 85%;
+
+  .hero-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 154px;
   }
-  
-  .logo {
-    font-size: 52px;
-    font-weight: 700;
-    color: $accent;
-    text-align: center;
-    margin-top: 120px;
-    text-shadow: $glow;
+
+  .metrics-strip {
+    gap: 10px;
   }
-  
-  .tagline, h2, .unit {
-    color: rgba(255,255,255,0.8);
-    margin: 10px 0;
+
+  .metric-card {
+    padding: 14px 10px;
   }
+
+  .section-header {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .section-kicker {
+    justify-self: start;
+  }
+
+  .price-stack {
+    grid-template-columns: 1fr;
+  }
+}

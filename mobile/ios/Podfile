@@ -1,0 +1,45 @@
+platform :ios, '13.0'
+
+target 'reptrak' do
+  pod 'React', :path => '../node_modules/react-native'
+  pod 'React-Core', :path => '../node_modules/react-native'
+  pod 'React-Core/DevSupport', :path => '../node_modules/react-native'
+  pod 'React-RCTActionSheet', :path => '../node_modules/react-native'
+  pod 'React-RCTAnimation', :path => '../node_modules/react-native'
+  pod 'React-RCTBlob', :path => '../node_modules/react-native'
+  pod 'React-RCTImage', :path => '../node_modules/react-native'
+  pod 'React-RCTLinking', :path => '../node_modules/react-native'
+  pod 'React-RCTNetwork', :path => '../node_modules/react-native'
+  pod 'React-RCTPushNotification', :path => '../node_modules/react-native'
+  pod 'React-RCTSettings', :path => '../node_modules/react-native'
+  pod 'React-RCTText', :path => '../node_modules/react-native'
+  pod 'React-RCTVibration', :path => '../node_modules/react-native'
+  pod 'React-RCTWebSocket', :path => '../node_modules/react-native'
+  
+  pod 'React-cxxreact', :path => '../node_modules/react-native/ReactCommon/cxxreact'
+  pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
+  pod 'React-jsiexecutor', :path => '../node_modules/react-native/ReactCommon/jsiexecutor'
+  pod 'React-perflogger', :path => '../node_modules/react-native/ReactCommon/reactperflogger'
+  pod 'React-utils', :path => '../node_modules/react-native/ReactCommon/utils'
+  
+  pod 'ReactCommon/turbomodule/core', :path => '../node_modules/react-native/ReactCommon'
+  pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+  
+  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+
+  # Binary Expo Modules
+  pod 'EXConstants', path: '../node_modules/expo-constants/ios'
+  pod 'EXFileSystem', path: '../node_modules/expo-file-system/ios'
+  pod 'EXSplashScreen', path: '../node_modules/expo-splash-screen/ios'
+  
+  # Standard dependency
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  
+  post_install do |installer|
+    react_native_post_install(installer)
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+  end
+end

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorized="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="46Z-ZA-AzE">
+            <objects>
+                <viewController id="iYj-Kq-Ea1" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ReptraK" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yc-rYw">
+                                <rect key="frame" x="0.0" y="278" width="414" height="340"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="56"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Habit Tracking for iOS" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="AdOi-HS-ZfG">
+                                <rect key="frame" x="0.0" y="636" width="414" height="40"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fbc"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Bcu-3y-fbc" firstAttribute="centerX" secondItem="GJd-Yc-rYw" secondAttribute="centerX" id="Q3B-RA-DJl"/>
+                            <constraint firstItem="Bcu-3y-fbc" firstAttribute="centerY" secondItem="GJd-Yc-rYw" secondAttribute="centerY" id="aNO-IA-HxS"/>
+                            <constraint firstItem="AdOi-HS-ZfG" firstAttribute="top" secondItem="GJd-Yc-rYw" secondAttribute="bottom" constant="20" id="MN2-I3-ftu"/>
+                            <constraint firstItem="Bcu-3y-fbc" firstAttribute="centerX" secondItem="AdOi-HS-ZfG" secondAttribute="centerX" id="cIH-RP-AlB"/>
+                            <constraint firstItem="AdOi-HS-ZfG" firstAttribute="leading" secondItem="Bcu-3y-fbc" secondAttribute="leading" constant="20" id="x7j-FC-K8j"/>
+                            <constraint firstItem="Bcu-3y-fbc" firstAttribute="trailing" secondItem="AdOi-HS-ZfG" secondAttribute="trailing" constant="20" id="O5A-6n-4AS"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iN0-l3-epB" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

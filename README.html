@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="reptrakdesignbible">ReptraK Design Bible</h1>
+
+<h2 id="localsetup">Local setup</h2>
+
+<p>This repo now includes a lightweight front-end toolchain:</p>
+
+<ul>
+<li><code>package.json</code> for dependencies and scripts</li>
+<li><code>eslint.config.js</code> for browser-safe linting</li>
+<li><code>.gitignore</code> for node and Sass artifacts</li>
+</ul>
+
+<p>Install and run:</p>
+
+<pre><code class="bash">npm install
+npm run build:css
+npm run dev
+</code></pre>
+
+<p>Helpful scripts:</p>
+
+<ul>
+<li><code>npm run lint</code></li>
+<li><code>npm run watch:css</code></li>
+</ul>
+
+<p>Current runtime note:</p>
+
+<ul>
+<li>the prototype still loads GSAP and Font Awesome from CDN in <a href="/Users/naimsaleem/Desktop/ReptraK/index.html"><code>index.html</code></a> so it can run without bundling</li>
+<li>local dependencies are now present to support linting, future bundling, and a cleaner production setup</li>
+</ul>
+
+<h2 id="productdirection">Product direction</h2>
+
+<p>ReptraK is a glossy, habit-tracking mobile product with a Frutiger Aero mood:</p>
+
+<ul>
+<li>optimistic instead of austere</li>
+<li>glassy instead of flat</li>
+<li>layered instead of empty</li>
+<li>calm instead of hyper-gamified</li>
+</ul>
+
+<p>The visual goal is to keep the original deep-indigo and aqua identity while upgrading structure, spacing, and polish so the interface feels premium and intentional.</p>
+
+<h2 id="gridsystem">Grid system</h2>
+
+<p>The prototype uses a 4-column mobile grid tuned for a 402px artboard:</p>
+
+<ul>
+<li>outer padding: 24px</li>
+<li>column count: 4</li>
+<li>gutter: 10px</li>
+<li>default screen gap: 16px</li>
+<li>large card radius: 30px</li>
+<li>medium radius: 22px</li>
+<li>small radius: 18px</li>
+</ul>
+
+<p>Layout rules:</p>
+
+<ul>
+<li>one dominant hero surface above the fold</li>
+<li>one primary action per screen</li>
+<li>metrics grouped into 2-up or 3-up rows</li>
+<li>dense information only after the first hero section</li>
+<li>bottom navigation stays visually separate from content cards</li>
+</ul>
+
+<h2 id="colorandmaterial">Color and material</h2>
+
+<p>Core palette:</p>
+
+<ul>
+<li>deep indigo: <code>#23214D</code></li>
+<li>softened indigo: <code>#302D64</code></li>
+<li>cyan accent: <code>#6FD9FF</code></li>
+<li>bright highlight cyan: <code>#9CF1FF</code></li>
+<li>cool blue depth: <code>#49B7EA</code></li>
+</ul>
+
+<p>Material rules:</p>
+
+<ul>
+<li>glass surfaces use white at low opacity over dark indigo</li>
+<li>all premium surfaces get top highlights plus inner gloss</li>
+<li>glow is used selectively around CTAs, hero orbs, and progress surfaces</li>
+<li>avoid making every card equally bright</li>
+</ul>
+
+<h2 id="components">Components</h2>
+
+<h3 id="glasscards">Glass cards</h3>
+
+<ul>
+<li>rounded, translucent, softly glowing</li>
+<li>visible edge definition with a thin high-opacity border</li>
+<li>top-half highlight sheen</li>
+<li>stronger padding than the original prototype</li>
+</ul>
+
+<h3 id="glossybuttons">Glossy buttons</h3>
+
+<ul>
+<li>primary buttons use layered aqua-white gradients</li>
+<li>secondary buttons stay glassy and quiet</li>
+<li>both use capsule radii and subtle hover lift</li>
+</ul>
+
+<h3 id="progressring">Progress ring</h3>
+
+<ul>
+<li>conic gradient + dark center well</li>
+<li>inner glow for legibility</li>
+<li>percentage is the focal number, not the decoration</li>
+</ul>
+
+<h3 id="weeklygrid">Weekly grid</h3>
+
+<ul>
+<li>seven compact capsules</li>
+<li>completed states glow brighter than empty states</li>
+<li>labels stay tiny and quiet</li>
+</ul>
+
+<h2 id="motion">Motion</h2>
+
+<p>Motion should feel buoyant and ambient:</p>
+
+<ul>
+<li>icons float upward with mild horizontal drift</li>
+<li>screen transitions blur in and settle</li>
+<li>no aggressive bounce or overshoot</li>
+<li>decorative motion must never block the reading path</li>
+</ul>
+
+<h2 id="screenpriorities">Screen priorities</h2>
+
+<p>Landing:</p>
+
+<ul>
+<li>emotional hook</li>
+<li>glossy hero</li>
+<li>immediate CTA</li>
+</ul>
+
+<p>Onboarding:</p>
+
+<ul>
+<li>one task per screen</li>
+<li>no clutter</li>
+<li>clear forward progression</li>
+</ul>
+
+<p>Dashboard:</p>
+
+<ul>
+<li>habit name</li>
+<li>completion state</li>
+<li>three compact metrics</li>
+<li>weekly map</li>
+<li>one log action</li>
+</ul>
+
+<p>Insights:</p>
+
+<ul>
+<li>one chart hero</li>
+<li>two supporting insights</li>
+<li>one rule card to keep information architecture clean</li>
+</ul>
+
+<p>Premium:</p>
+
+<ul>
+<li>concise value pitch</li>
+<li>four feature badges</li>
+<li>one subscription CTA</li>
+</ul>
+
+<h2 id="buildprocess">Build process</h2>
+
+<h3 id="phase1">Phase 1</h3>
+
+<ul>
+<li>define tokens</li>
+<li>define grid</li>
+<li>define reusable card/button/input/nav patterns</li>
+</ul>
+
+<h3 id="phase2">Phase 2</h3>
+
+<ul>
+<li>implement onboarding flow</li>
+<li>implement dashboard shell</li>
+<li>implement progress logic and persistence</li>
+</ul>
+
+<h3 id="phase3">Phase 3</h3>
+
+<ul>
+<li>add richer analytics</li>
+<li>add premium gating</li>
+<li>refine motion and ambient atmosphere</li>
+</ul>
+
+<h3 id="phase4">Phase 4</h3>
+
+<ul>
+<li>port to a real mobile stack</li>
+<li>keep this repo as visual reference or design prototype</li>
+</ul>
+
+<h2 id="notes">Notes</h2>
+
+<p>This repository is currently a static prototype, not a native mobile app. The cleanest long-term path is to treat this as the visual reference system and then rebuild the product on Expo + React Native once the UI language is locked.</p>
+
+</body>
+</html>
+
