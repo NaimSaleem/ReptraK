@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { loadUser, persistUser, syncDerivedState, isOnboarded } from './lib/reptrak';
 import DashboardScreen from './screens/DashboardScreen';
 import CalendarScreen from './screens/CalendarScreen';
@@ -9,6 +10,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import PremiumScreen from './screens/PremiumScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import { glass } from './theme/glass';
+import { getThemePalette } from './theme/palette';
 
 const Tab = createBottomTabNavigator();
 
@@ -52,61 +54,85 @@ export default function App() {
     );
   }
 
+  const theme = getThemePalette(user.theme);
+
   if (!isOnboarded(user)) {
-    return <OnboardingScreen user={user} onUserChange={updateUser} />;
+    return <OnboardingScreen user={user} onUserChange={updateUser} theme={theme} />;
   }
 
   return (
     <NavigationContainer>
       <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: glass.colors.accentStrong,
+        screenOptions={({ route }) => ({
+          tabBarActiveTintColor: theme.accentStrong,
           tabBarInactiveTintColor: 'rgba(230, 241, 255, 0.55)',
           tabBarLabelStyle: {
             fontSize: 11,
-            fontWeight: '600',
+            fontWeight: '700',
+            letterSpacing: 0.3,
             paddingBottom: 4
           },
           tabBarItemStyle: {
-            paddingVertical: 6
+            paddingVertical: 6,
+            marginHorizontal: 4,
+            borderRadius: 999
           },
           tabBarStyle: {
-            backgroundColor: 'rgba(35, 33, 77, 0.92)',
+            position: 'absolute',
+            left: 12,
+            right: 12,
+            bottom: 12,
+            borderRadius: 999,
+            height: 72,
+            paddingBottom: 8,
+            paddingTop: 8,
+            backgroundColor: `${theme.bgElevated}EE`,
             borderTopColor: glass.colors.borderSoft,
             borderTopWidth: 1
           },
+          tabBarActiveBackgroundColor: theme.glow,
+          tabBarInactiveBackgroundColor: 'rgba(255,255,255,0.05)',
           headerStyle: {
-            backgroundColor: 'rgba(35, 33, 77, 0.94)',
+            backgroundColor: `${theme.bgElevated}F0`,
             borderBottomColor: glass.colors.borderSoft,
             borderBottomWidth: 1
           },
           headerTintColor: glass.colors.textMain,
-          headerTitleStyle: { color: glass.colors.textMain }
-        }}
+          headerTitleStyle: { color: glass.colors.textMain },
+          tabBarIcon: ({ color, size, focused }) => {
+            const names = {
+              Home: focused ? 'home' : 'home-outline',
+              Calendar: focused ? 'calendar' : 'calendar-outline',
+              Profile: focused ? 'person-circle' : 'person-circle-outline',
+              Premium: focused ? 'diamond' : 'diamond-outline'
+            };
+            return <Ionicons name={names[route.name]} size={size + 1} color={color} />;
+          }
+        })}
       >
         <Tab.Screen
           name="Home"
           options={{ title: 'Dashboard' }}
         >
-          {() => <DashboardScreen user={user} onUserChange={updateUser} />}
+          {() => <DashboardScreen user={user} onUserChange={updateUser} theme={theme} />}
         </Tab.Screen>
         <Tab.Screen
           name="Calendar"
           options={{ title: 'Calendar' }}
         >
-          {() => <CalendarScreen user={user} onUserChange={updateUser} />}
+          {() => <CalendarScreen user={user} onUserChange={updateUser} theme={theme} />}
         </Tab.Screen>
         <Tab.Screen
           name="Profile"
           options={{ title: 'Profile' }}
         >
-          {() => <ProfileScreen user={user} />}
+          {() => <ProfileScreen user={user} theme={theme} />}
         </Tab.Screen>
         <Tab.Screen
           name="Premium"
           options={{ title: 'Premium' }}
         >
-          {() => <PremiumScreen user={user} onUserChange={updateUser} />}
+          {() => <PremiumScreen user={user} onUserChange={updateUser} theme={theme} />}
         </Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>

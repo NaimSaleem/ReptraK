@@ -1,15 +1,36 @@
 export const glass = {
   colors: {
-    bgTop: '#2f2d63',
-    bgBottom: '#17153a',
-    panel: 'rgba(255, 255, 255, 0.10)',
-    panelStrong: 'rgba(255, 255, 255, 0.16)',
-    border: 'rgba(255, 255, 255, 0.28)',
-    borderSoft: 'rgba(255, 255, 255, 0.16)',
+    bgTop: '#3a4d83',
+    bgBottom: '#111637',
+    panel: 'rgba(255, 255, 255, 0.11)',
+    panelStrong: 'rgba(255, 255, 255, 0.18)',
+    panelDeep: 'rgba(34, 38, 79, 0.72)',
+    border: 'rgba(237, 247, 255, 0.38)',
+    borderSoft: 'rgba(231, 245, 255, 0.2)',
+    borderInner: 'rgba(255, 255, 255, 0.28)',
+    glare: 'rgba(255, 255, 255, 0.3)',
     textMain: 'rgba(255, 255, 255, 0.96)',
     textSoft: 'rgba(230, 241, 255, 0.74)',
     accent: '#6fd9ff',
-    accentStrong: '#9cf1ff'
+    accentStrong: '#9cf1ff',
+    buttonPrimaryTop: 'rgba(224, 252, 255, 0.72)',
+    buttonPrimaryBottom: 'rgba(118, 193, 240, 0.5)',
+    buttonSecondaryTop: 'rgba(255, 255, 255, 0.26)',
+    buttonSecondaryBottom: 'rgba(162, 177, 210, 0.18)'
+  },
+  radius: {
+    xl: 24,
+    lg: 20,
+    md: 16,
+    pill: 999
+  },
+  spacing: {
+    xxs: 4,
+    xs: 8,
+    sm: 12,
+    md: 16,
+    lg: 20,
+    xl: 24
   },
   shadow: {
     soft: {
@@ -28,4 +49,3 @@ export const glass = {
     }
   }
 };
-

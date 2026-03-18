@@ -44,11 +44,17 @@ export const defaultUser = {
   count: 0,
   minutes: 0,
   premium: false,
+  theme: 'aqua',
   calendarView: 'month',
   currentDay: 2,
+  logDayIndex: 2,
+  activitySeq: 3,
+  voidDays: [],
+  focusArchive: [],
   activities: [
     {
       id: 'focus',
+      role: 'focus',
       name: 'Deep Work',
       targetCount: 2,
       loggedCount: 1,
@@ -57,6 +63,7 @@ export const defaultUser = {
     },
     {
       id: 'movement',
+      role: 'supplementary',
       name: 'Movement',
       targetCount: 1,
       loggedCount: 0,
@@ -65,6 +72,7 @@ export const defaultUser = {
     },
     {
       id: 'reading',
+      role: 'supplementary',
       name: 'Reading',
       targetCount: 1,
       loggedCount: 1,
@@ -93,23 +101,81 @@ export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+export function getFocusActivity(user) {
+  return user.activities.find((activity) => activity.role === 'focus') || user.activities[0] || null;
+}
+
+export function getSupplementaryActivities(user) {
+  const focusId = getFocusActivity(user)?.id;
+  return user.activities.filter((activity) => activity.id !== focusId);
+}
+
+export function getTrackableActivities(user) {
+  const focus = getFocusActivity(user);
+  return focus ? [focus] : user.activities.slice(0, 1);
+}
+
+export function isVoidDay(user, dayIndex) {
+  return Array.isArray(user.voidDays) && user.voidDays.includes(dayIndex);
+}
+
+export function ensureFocusActivity(activities) {
+  if (!activities.length) {
+    return [{
+      ...defaultUser.activities[0],
+      role: 'focus'
+    }];
+  }
+
+  const normalized = activities.map((activity, index) => ({
+    ...defaultUser.activities[index % defaultUser.activities.length],
+    ...activity,
+    role: activity.role === 'focus' ? 'focus' : 'supplementary'
+  }));
+
+  const focusCount = normalized.filter((activity) => activity.role === 'focus').length;
+  if (focusCount === 0) {
+    normalized[0].role = 'focus';
+  } else if (focusCount > 1) {
+    let seenFocus = false;
+    for (const activity of normalized) {
+      if (activity.role === 'focus' && !seenFocus) {
+        seenFocus = true;
+      } else if (activity.role === 'focus') {
+        activity.role = 'supplementary';
+      }
+    }
+  }
+  return normalized;
+}
+
 export function normalizeUser(rawUser = {}) {
   const merged = { ...defaultUser, ...rawUser };
-  merged.activities = Array.isArray(rawUser.activities) && rawUser.activities.length
-    ? rawUser.activities.map((activity, index) => ({
-      ...defaultUser.activities[index % defaultUser.activities.length],
-      ...activity
-    }))
+
+  const incomingActivities = Array.isArray(rawUser.activities) && rawUser.activities.length
+    ? rawUser.activities.slice(0, 3)
     : defaultUser.activities.map((activity) => ({ ...activity }));
+
+  merged.activities = ensureFocusActivity(incomingActivities);
   merged.week = Array.isArray(rawUser.week) && rawUser.week.length
     ? rawUser.week.map((day, index) => ({
       ...defaultUser.week[index % defaultUser.week.length],
       ...day
     }))
     : defaultUser.week.map((day) => ({ ...day }));
+
   merged.month = Array.isArray(rawUser.month) && rawUser.month.length
     ? [...rawUser.month]
     : [...defaultUser.month];
+
+  merged.focusArchive = Array.isArray(rawUser.focusArchive) ? [...rawUser.focusArchive] : [];
+  merged.voidDays = Array.isArray(rawUser.voidDays)
+    ? rawUser.voidDays.filter((dayIndex) => Number.isFinite(dayIndex))
+    : [];
+  merged.currentDay = clamp(Number(merged.currentDay) || 0, 0, Math.max(merged.month.length - 1, 0));
+  merged.logDayIndex = clamp(Number(merged.logDayIndex ?? merged.currentDay) || 0, 0, Math.max(merged.month.length - 1, 0));
+  merged.activitySeq = Math.max(Number(merged.activitySeq) || merged.activities.length, merged.activities.length);
+  merged.habit = merged.habit || getFocusActivity(merged)?.name || '';
 
   return merged;
 }
@@ -140,6 +206,10 @@ export function getSelectedDayIndex(user) {
   return clamp(user.currentDay || 0, 0, Math.max(user.month.length - 1, 0));
 }
 
+export function getLogDayIndex(user) {
+  return clamp(user.logDayIndex ?? user.currentDay ?? 0, 0, Math.max(user.month.length - 1, 0));
+}
+
 export function getSelectedWeekIndex(user) {
   return getSelectedDayIndex(user) % 7;
 }
@@ -158,7 +228,6 @@ export function getCountCompletion(activity) {
 
   if (!target && !logged) return 0;
   if (!target) return 1;
-
   return clamp(logged / target, 0, 1);
 }
 
@@ -181,9 +250,11 @@ export function getActivityPercent(activity) {
 }
 
 export function getDayPercent(user) {
-  if (!user.activities.length) return 0;
-  const total = user.activities.reduce((sum, activity) => sum + getActivityPercent(activity), 0);
-  return Math.round(total / user.activities.length);
+  const trackable = getTrackableActivities(user);
+  if (!trackable.length) return 0;
+
+  const total = trackable.reduce((sum, activity) => sum + getActivityPercent(activity), 0);
+  return Math.round(total / trackable.length);
 }
 
 export function getZone(percent) {
@@ -198,18 +269,18 @@ export function getZoneConfig(percent) {
 }
 
 export function getCompletedActivityCount(user) {
-  return user.activities.filter((activity) => getActivityPercent(activity) >= 75).length;
+  return getTrackableActivities(user).filter((activity) => getActivityPercent(activity) >= 75).length;
 }
 
 export function getWeakestActivity(user) {
-  return user.activities.reduce((lowest, activity) => {
+  return getTrackableActivities(user).reduce((lowest, activity) => {
     if (!lowest) return activity;
     return getActivityPercent(activity) < getActivityPercent(lowest) ? activity : lowest;
   }, null);
 }
 
 export function getStrongestActivity(user) {
-  return user.activities.reduce((strongest, activity) => {
+  return getTrackableActivities(user).reduce((strongest, activity) => {
     if (!strongest) return activity;
     return getActivityPercent(activity) > getActivityPercent(strongest) ? activity : strongest;
   }, null);
@@ -217,7 +288,8 @@ export function getStrongestActivity(user) {
 
 export function getStreakFromMonth(user) {
   let streak = 0;
-  for (let index = getSelectedDayIndex(user); index >= 0; index -= 1) {
+  for (let index = getLogDayIndex(user); index >= 0; index -= 1) {
+    if (isVoidDay(user, index)) continue;
     if ((user.month[index] || 0) >= 75) {
       streak += 1;
     } else {
@@ -230,21 +302,135 @@ export function getStreakFromMonth(user) {
 export function syncDerivedState(rawUser) {
   const user = normalizeUser(rawUser);
   const dayPercent = getDayPercent(user);
-  const dayIndex = getSelectedDayIndex(user);
-  const weekIndex = getSelectedWeekIndex(user);
+  const dayIndex = getLogDayIndex(user);
+  const weekIndex = dayIndex % 7;
 
-  user.month[dayIndex] = dayPercent;
-  user.week[weekIndex] = {
-    ...user.week[weekIndex],
-    label: DAY_LABELS[weekIndex],
-    percent: dayPercent,
-    mood: getZone(dayPercent)
-  };
+  if (!isVoidDay(user, dayIndex)) {
+    user.month[dayIndex] = dayPercent;
+    user.week[weekIndex] = {
+      ...user.week[weekIndex],
+      label: DAY_LABELS[weekIndex],
+      percent: dayPercent,
+      mood: getZone(dayPercent)
+    };
+  }
+
   user.count = user.activities.reduce((sum, activity) => sum + Math.max(Number(activity.loggedCount) || 0, 0), 0);
   user.minutes = user.activities.reduce((sum, activity) => sum + Math.max(Number(activity.timeLogged) || 0, 0), 0);
   user.streak = getStreakFromMonth(user);
 
   return user;
+}
+
+export function canAddActivity(user) {
+  return user.activities.length < 3;
+}
+
+export function createActivity({ id, name, role = 'supplementary' }) {
+  return {
+    id,
+    name,
+    role,
+    targetCount: 1,
+    loggedCount: 0,
+    timeGoal: 30,
+    timeLogged: 0
+  };
+}
+
+export function addActivity(user, name) {
+  if (!canAddActivity(user)) return user;
+  const nextSeq = (user.activitySeq || user.activities.length) + 1;
+  const newActivity = createActivity({
+    id: `habit-${nextSeq}`,
+    name: name?.trim() || `Habit ${nextSeq}`
+  });
+
+  return {
+    ...user,
+    activitySeq: nextSeq,
+    activities: [...user.activities, newActivity]
+  };
+}
+
+export function switchFocusActivity(user, nextFocusId) {
+  const normalized = normalizeUser(user);
+  const currentFocus = getFocusActivity(normalized);
+  if (!currentFocus || currentFocus.id === nextFocusId) return normalized;
+
+  const nextFocus = normalized.activities.find((activity) => activity.id === nextFocusId);
+  if (!nextFocus) return normalized;
+
+  const archivedEntry = {
+    id: currentFocus.id,
+    name: currentFocus.name,
+    switchedAt: new Date().toISOString(),
+    finalPercent: getActivityPercent(currentFocus),
+    loggedCount: currentFocus.loggedCount,
+    timeLogged: currentFocus.timeLogged
+  };
+
+  const activities = normalized.activities.map((activity) => {
+    if (activity.id === currentFocus.id) {
+      return {
+        ...activity,
+        role: 'supplementary',
+        loggedCount: 0,
+        timeLogged: 0
+      };
+    }
+    if (activity.id === nextFocusId) {
+      return {
+        ...activity,
+        role: 'focus',
+        loggedCount: 0,
+        timeLogged: 0
+      };
+    }
+    return { ...activity, role: 'supplementary' };
+  });
+
+  return {
+    ...normalized,
+    habit: nextFocus.name,
+    frequency: String(nextFocus.targetCount || normalized.frequency || ''),
+    activities,
+    focusArchive: [archivedEntry, ...normalized.focusArchive].slice(0, 20)
+  };
+}
+
+export function toggleVoidDay(user, dayIndex) {
+  const normalized = normalizeUser(user);
+  const exists = normalized.voidDays.includes(dayIndex);
+  const voidDays = exists
+    ? normalized.voidDays.filter((value) => value !== dayIndex)
+    : [...normalized.voidDays, dayIndex];
+
+  return {
+    ...normalized,
+    voidDays
+  };
+}
+
+export function getPremiumInsights(user) {
+  const selectedDay = getSelectedDayIndex(user);
+  const currentWeekStart = Math.floor(selectedDay / 7) * 7;
+  const currentWeek = user.month.slice(currentWeekStart, currentWeekStart + 7);
+  const previousWeek = user.month.slice(Math.max(currentWeekStart - 7, 0), currentWeekStart);
+
+  const weekAvg = currentWeek.length
+    ? Math.round(currentWeek.reduce((sum, value) => sum + value, 0) / currentWeek.length)
+    : 0;
+  const monthAvg = user.month.length
+    ? Math.round(user.month.reduce((sum, value) => sum + value, 0) / user.month.length)
+    : 0;
+  const trend = previousWeek.length
+    ? weekAvg - Math.round(previousWeek.reduce((sum, value) => sum + value, 0) / previousWeek.length)
+    : 0;
+  const best = Math.max(...currentWeek, 0);
+  const worst = Math.min(...currentWeek, 100);
+
+  return { weekAvg, monthAvg, trend, best, worst };
 }
 
 export function getGreeting() {
@@ -255,30 +441,26 @@ export function getGreeting() {
 }
 
 export function getCoachContent(user, percent) {
-  const completedActivities = getCompletedActivityCount(user);
-  const weakest = getWeakestActivity(user);
-  const strongest = getStrongestActivity(user);
-  const weekPercents = user.week.map((day) => day?.percent || 0);
-  const weeklyAverage = Math.round(weekPercents.reduce((sum, value) => sum + value, 0) / weekPercents.length);
-  const weeklyBest = Math.max(...weekPercents);
-  const weeklyWorst = Math.min(...weekPercents);
+  const focus = getFocusActivity(user);
+  const supplementaryCount = getSupplementaryActivities(user).length;
+  const insights = getPremiumInsights(user);
   const premiumTail = user.premium
-    ? ` Compared with this week, you are ${percent >= weeklyAverage ? 'ahead of' : 'below'} your ${weeklyAverage}% average, with a best day of ${weeklyBest}% and a weakest day of ${weeklyWorst}%.`
+    ? ` Week avg ${insights.weekAvg}% vs month avg ${insights.monthAvg}% (${insights.trend >= 0 ? '+' : ''}${insights.trend}).`
     : '';
 
   if (percent >= 100) {
     return {
-      heading: 'You cleared the day',
-      kicker: 'Bright blue finish',
-      copy: `Everything landed. Today is fully complete, your liquid is crystal blue, and this is the kind of day Premium will compare against weaker ones.${premiumTail}`
+      heading: 'Mastery rep locked',
+      kicker: `${focus?.name || 'Focus habit'} fully complete`,
+      copy: `Bright blue closeout. Your focus habit is done and the day is closed. Supplementary habits are optional support only.${premiumTail}`
     };
   }
 
   if (percent > 75) {
     return {
-      heading: 'You are in the green zone',
-      kicker: `${completedActivities}/${user.activities.length} activities moving`,
-      copy: `You are doing well. ${weakest ? `${weakest.name} is the only soft spot left.` : 'One more clean pass will lock in the day.'}${premiumTail}`
+      heading: 'Focus lane is strong',
+      kicker: `${focus?.name || 'Focus habit'} in the green zone`,
+      copy: `You are close to full completion on your main skill track. Keep supplementary habits light so focus stays sharp.${premiumTail}`
     };
   }
 
@@ -286,18 +468,14 @@ export function getCoachContent(user, percent) {
     return {
       heading: 'Momentum is real',
       kicker: 'Yellow means halfway there',
-      copy: strongest
-        ? `${strongest.name} is carrying the day. Bring ${weakest ? weakest.name : 'the last habit'} up and you will move out of the caution band.${premiumTail}`
-        : `A little more logging will move the day into a safer zone.${premiumTail}`
+      copy: `Keep attention on ${focus?.name || 'the focus habit'}. You still have ${supplementaryCount} supplementary habit${supplementaryCount === 1 ? '' : 's'} available, but they do not raise your core mastery score.${premiumTail}`
     };
   }
 
   return {
-    heading: 'Today needs a reset',
+    heading: 'Reset and rep',
     kicker: 'Red-orange means under 50%',
-    copy: weakest
-      ? `Start with ${weakest.name}. Small wins matter more than widgets right now, and one focused check-in will raise the whole day.${premiumTail}`
-      : `Start with your easiest habit and build from there.${premiumTail}`
+    copy: `Run one small rep on ${focus?.name || 'the focus habit'} right now. The system rewards consistency on one thing at a time.${premiumTail}`
   };
 }
 

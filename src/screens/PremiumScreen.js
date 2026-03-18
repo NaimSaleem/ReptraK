@@ -5,32 +5,59 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Alert
+  Alert,
+  TouchableOpacity
 } from 'react-native';
+import { getPremiumInsights } from '../lib/reptrak';
+import { AmbientGlow } from '../components/AmbientGlow';
 import { GlassButton } from '../components/GlassButton';
+import { glass } from '../theme/glass';
+import { layout } from '../theme/layout';
+import { THEMES } from '../theme/palette';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a1220'
+    backgroundColor: '#1d1a46'
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 12
+    paddingHorizontal: layout.appHorizontalPadding,
+    paddingVertical: layout.appVerticalPadding,
+    paddingBottom: 122
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 20
+    fontSize: 33,
+    lineHeight: 36,
+    letterSpacing: -1,
+    fontWeight: '800',
+    color: glass.colors.textMain,
+    marginBottom: 14
+  },
+  subtitle: {
+    fontSize: 13,
+    color: glass.colors.textSoft,
+    marginBottom: 16,
+    lineHeight: 19
   },
   featureCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    backgroundColor: glass.colors.panel,
+    borderRadius: glass.radius.lg,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)'
+    borderColor: glass.colors.borderSoft,
+    overflow: 'hidden',
+    ...glass.shadow.soft
+  },
+  featureGloss: {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    right: 1,
+    height: '44%',
+    borderTopLeftRadius: glass.radius.lg - 1,
+    borderTopRightRadius: glass.radius.lg - 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)'
   },
   featureHeader: {
     flexDirection: 'row',
@@ -40,8 +67,8 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '700',
+    color: glass.colors.textMain,
     flex: 1
   },
   freeTag: {
@@ -52,7 +79,7 @@ const styles = StyleSheet.create({
   },
   freeTagText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#79f49c'
   },
   premiumTag: {
@@ -63,21 +90,33 @@ const styles = StyleSheet.create({
   },
   premiumTagText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#ffbc48'
   },
   featureDescription: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 13,
+    color: glass.colors.textSoft,
     lineHeight: 18
   },
   pricingSection: {
-    marginTop: 20,
-    backgroundColor: 'rgba(136, 239, 255, 0.1)',
-    borderRadius: 12,
+    marginTop: 8,
+    backgroundColor: glass.colors.panelStrong,
+    borderRadius: glass.radius.xl,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(136, 239, 255, 0.3)'
+    borderColor: 'rgba(136, 239, 255, 0.35)',
+    overflow: 'hidden',
+    ...glass.shadow.soft
+  },
+  pricingGloss: {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    right: 1,
+    height: '32%',
+    borderTopLeftRadius: glass.radius.xl - 1,
+    borderTopRightRadius: glass.radius.xl - 1,
+    backgroundColor: glass.colors.glare
   },
   pricingTitle: {
     fontSize: 18,
@@ -87,28 +126,95 @@ const styles = StyleSheet.create({
   },
   pricingCopy: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: glass.colors.textSoft,
     marginBottom: 16,
     lineHeight: 20
   },
+  tierGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 8
+  },
   priceBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
+    flex: 1,
+    backgroundColor: glass.colors.panel,
+    borderRadius: 14,
     padding: 12,
-    marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)'
+    borderColor: glass.colors.borderSoft
   },
   priceTitle: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '700',
+    color: glass.colors.textMain,
     marginBottom: 2
   },
   priceAmount: {
     fontSize: 16,
     fontWeight: '700',
     color: '#88efff'
+  },
+  priceFoot: {
+    fontSize: 11,
+    color: glass.colors.textSoft
+  },
+  insightGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 12,
+    marginBottom: 8
+  },
+  insightCard: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: glass.colors.borderSoft,
+    backgroundColor: glass.colors.panel,
+    padding: 10
+  },
+  insightLabel: {
+    fontSize: 11,
+    color: glass.colors.textSoft
+  },
+  insightValue: {
+    marginTop: 3,
+    fontSize: 16,
+    fontWeight: '800',
+    color: glass.colors.textMain
+  },
+  themeTitle: {
+    marginTop: 16,
+    marginBottom: 10,
+    fontSize: 14,
+    fontWeight: '700',
+    color: glass.colors.textMain
+  },
+  themeGrid: {
+    flexDirection: 'row',
+    gap: 10
+  },
+  themeCard: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: glass.colors.borderSoft,
+    padding: 10
+  },
+  themeSwatch: {
+    width: '100%',
+    height: 28,
+    borderRadius: 8,
+    marginBottom: 8
+  },
+  themeName: {
+    fontSize: 12,
+    color: glass.colors.textMain,
+    fontWeight: '700'
+  },
+  themeStatus: {
+    marginTop: 2,
+    fontSize: 10,
+    color: glass.colors.textSoft
   }
 });
 
@@ -130,50 +236,49 @@ const FEATURES = [
   },
   {
     title: 'Weekly compare-and-contrast',
-    description: 'Detailed analysis comparing your performance across weeks',
+    description: 'Detailed analysis comparing your best and weakest periods',
     isPremium: true
   },
   {
-    title: 'Advanced analytics',
-    description: 'Deep insights into your habit patterns and trends',
+    title: 'Theme switching',
+    description: 'Change visual themes without losing your data or progress',
     isPremium: true
   },
   {
-    title: 'Custom goals',
-    description: 'Set unlimited custom habits and targets',
+    title: 'Sick/Travel void days',
+    description: 'Exclude disrupted days from streak and trend calculations',
     isPremium: true
   }
 ];
 
-export default function PremiumScreen({ user, onUserChange }) {
+export default function PremiumScreen({ user, onUserChange, theme }) {
+  const insights = getPremiumInsights(user);
+
   const handleSubscribe = () => {
-    Alert.alert(
-      'Premium Feature',
-      'In the full app, this would connect to Stripe Checkout or RevenueCat for payment processing.\n\n' +
-      'Premium benefits:\n' +
-      '• Weekly compare-and-contrast positioning\n' +
-      '• Detailed progress language and analytics\n' +
-      '• $2.99 intro / $5.99 monthly',
-      [
-        { text: 'Cancel', onPress: () => {}, style: 'cancel' },
-        {
-          text: 'Activate Premium',
-          onPress: () => {
-            onUserChange({ ...user, premium: true });
-            Alert.alert('Success', 'Premium is now active!');
-          }
-        }
-      ]
-    );
+    onUserChange({ ...user, premium: true });
+    Alert.alert('Premium Active', 'Unlocked immediately for showcase mode.');
+  };
+
+  const applyTheme = (themeId) => {
+    if (!user.premium) {
+      Alert.alert('Premium only', 'Unlock Premium first to switch themes.');
+      return;
+    }
+    onUserChange({ ...user, theme: themeId });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollContent}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
+      <AmbientGlow theme={theme} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Premium</Text>
+        <Text style={styles.subtitle}>
+          Free stays focused on daily tracking. Premium adds compare-and-contrast insights, trend detail, and deeper coaching.
+        </Text>
 
         {FEATURES.map((feature) => (
           <View key={feature.title} style={styles.featureCard}>
+            <View pointerEvents="none" style={styles.featureGloss} />
             <View style={styles.featureHeader}>
               <Text style={styles.featureTitle}>{feature.title}</Text>
               {feature.isPremium && user.premium && (
@@ -197,21 +302,61 @@ export default function PremiumScreen({ user, onUserChange }) {
         ))}
 
         <View style={styles.pricingSection}>
+          <View pointerEvents="none" style={styles.pricingGloss} />
           <Text style={styles.pricingTitle}>Upgrade to Premium</Text>
           <Text style={styles.pricingCopy}>
             Unlock advanced analytics, weekly insights, and detailed progress tracking.
           </Text>
 
-          <View style={styles.priceBox}>
-            <Text style={styles.priceTitle}>Intro Offer</Text>
-            <Text style={styles.priceAmount}>$2.99</Text>
-            <Text style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.5)' }}>First 7 days</Text>
+          <View style={styles.tierGrid}>
+            <View style={styles.priceBox}>
+              <Text style={styles.priceTitle}>Intro Offer</Text>
+              <Text style={styles.priceAmount}>$2.99</Text>
+              <Text style={styles.priceFoot}>First 30 days</Text>
+            </View>
+            <View style={styles.priceBox}>
+              <Text style={styles.priceTitle}>Monthly</Text>
+              <Text style={styles.priceAmount}>$5.99</Text>
+              <Text style={styles.priceFoot}>After intro period</Text>
+            </View>
           </View>
 
-          <View style={styles.priceBox}>
-            <Text style={styles.priceTitle}>Monthly</Text>
-            <Text style={styles.priceAmount}>$5.99</Text>
-            <Text style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.5)' }}>After intro period</Text>
+          <View style={styles.insightGrid}>
+            <View style={styles.insightCard}>
+              <Text style={styles.insightLabel}>Week Avg</Text>
+              <Text style={styles.insightValue}>{insights.weekAvg}%</Text>
+            </View>
+            <View style={styles.insightCard}>
+              <Text style={styles.insightLabel}>Month Avg</Text>
+              <Text style={styles.insightValue}>{insights.monthAvg}%</Text>
+            </View>
+            <View style={styles.insightCard}>
+              <Text style={styles.insightLabel}>Trend</Text>
+              <Text style={styles.insightValue}>{insights.trend >= 0 ? '+' : ''}{insights.trend}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.themeTitle}>Premium themes</Text>
+          <View style={styles.themeGrid}>
+            {Object.values(THEMES).map((themeOption) => (
+              <TouchableOpacity
+                key={themeOption.id}
+                style={[
+                  styles.themeCard,
+                  user.theme === themeOption.id && {
+                    borderColor: themeOption.accent,
+                    backgroundColor: `${themeOption.accent}20`
+                  }
+                ]}
+                onPress={() => applyTheme(themeOption.id)}
+              >
+                <View style={[styles.themeSwatch, { backgroundColor: themeOption.bgBase }]} />
+                <Text style={styles.themeName}>{themeOption.label}</Text>
+                <Text style={styles.themeStatus}>
+                  {user.theme === themeOption.id ? 'Active' : 'Tap to apply'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <GlassButton

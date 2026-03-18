@@ -16,24 +16,37 @@ const styles = StyleSheet.create({
     ...glass.shadow.soft
   },
   primaryButton: {
-    backgroundColor: 'rgba(197, 250, 255, 0.32)',
+    backgroundColor: glass.colors.buttonPrimaryBottom,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)'
+    borderColor: glass.colors.border
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: glass.colors.buttonSecondaryBottom,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)'
+    borderColor: glass.colors.borderSoft
   },
   gloss: {
     position: 'absolute',
-    top: 1,
+    top: 0,
     left: 1,
     right: 1,
-    height: '52%',
+    height: '54%',
     borderTopLeftRadius: 999,
     borderTopRightRadius: 999,
-    backgroundColor: 'rgba(255, 255, 255, 0.32)'
+    backgroundColor: glass.colors.buttonPrimaryTop
+  },
+  glossSecondary: {
+    backgroundColor: glass.colors.buttonSecondaryTop
+  },
+  innerStroke: {
+    position: 'absolute',
+    left: 2,
+    right: 2,
+    top: 2,
+    bottom: 2,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: glass.colors.borderInner
   },
   buttonText: {
     fontSize: 15,
@@ -50,6 +63,7 @@ export function GlassButton({ title, onPress, variant = 'primary', style }) {
   const scale = useRef(new Animated.Value(1)).current;
   const buttonStyle = variant === 'primary' ? styles.primaryButton : styles.secondaryButton;
   const textStyle = variant === 'primary' ? styles.primaryText : null;
+  const glossStyle = variant === 'primary' ? null : styles.glossSecondary;
 
   const animateTo = (value) => {
     Animated.spring(scale, {
@@ -74,7 +88,8 @@ export function GlassButton({ title, onPress, variant = 'primary', style }) {
           { transform: [{ scale }] }
         ]}
       >
-        <View pointerEvents="none" style={styles.gloss} />
+        <View pointerEvents="none" style={[styles.gloss, glossStyle]} />
+        <View pointerEvents="none" style={styles.innerStroke} />
         <Text style={[styles.buttonText, textStyle]}>{title}</Text>
       </Animated.View>
     </Pressable>
