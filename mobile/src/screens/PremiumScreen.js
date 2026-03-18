@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Alert
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { persistUser, syncDerivedState } from '../lib/reptrak';
 import { GlassButton } from '../components/GlassButton';
 
