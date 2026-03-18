@@ -2,28 +2,47 @@
   "name": "reptrak",
   "version": "1.0.0",
   "private": true,
-  "description": "ReptraK glossy Frutiger Aero habit tracking prototype",
+  "description": "ReptraK glossy Frutiger Aero habit tracking prototype - iOS only",
   "engines": {
-    "node": ">=25"
+    "node": ">=20"
   },
   "scripts": {
-    "dev": "vite --open /dev.html",
-    "build": "vite build",
-    "preview": "vite preview",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
+    "start": "expo start",
     "lint": "eslint src --ext .js,.jsx"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.6.0",
-    "gsap": "^3.12.5",
+    "expo": "^55.0.7",
+    "expo-constants": "^55.0.8",
+    "expo-font": "^55.0.4",
+    "expo-asset": "^55.0.9",
+    "expo-file-system": "^55.0.11",
+    "expo-keep-awake": "^55.0.4",
+    "expo-modules-core": "^55.0.16",
+    "expo-modules-autolinking": "^55.0.10",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-native": "^0.84.1",
+    "react-native-gesture-handler": "^2.30.0",
+    "@react-navigation/native": "^7.1.33",
+    "@react-navigation/bottom-tabs": "^7.15.5",
+    "react-native-safe-area-context": "^5.7.0",
+    "react-native-screens": "^4.24.0",
+    "react-native-vector-icons": "^10.3.0",
+    "@react-native-async-storage/async-storage": "^3.0.1",
+    "date-fns": "^4.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.7.0",
-    "eslint": "^8.57.1",
-    "eslint-plugin-react": "^7.37.5",
-    "globals": "^15.10.0",
-    "sass": "^1.79.4",
-    "vite": "^6.4.1"
+    "@babel/core": "^7.29.0",
+    "@types/react": "^19.2.14",
+    "@types/react-native": "^0.73.0",
+    "babel-jest": "^29.7.0",
+    "expo-cli": "^6.3.10",
+    "jest": "^30.3.0",
+    "jest-environment-node": "^29.7.0",
+    "typescript": "^5.9.3"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
