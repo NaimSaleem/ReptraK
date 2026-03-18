@@ -4,7 +4,7 @@
   "private": true,
   "description": "ReptraK glossy Frutiger Aero habit tracking prototype",
   "engines": {
-    "node": ">=18 <21"
+    "node": ">=25"
   },
   "scripts": {
     "dev": "vite --open /dev.html",

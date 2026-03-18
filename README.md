@@ -1,220 +1,153 @@
-# ReptraK - Habit Tracking App
+# ReptraK Mobile - React Native App
 
-A glossy, habit-tracking mobile app with a Frutiger Aero mood. Available as both a web app and native iOS/Android app.
+A native iOS and Android habit tracking app built with React Native and Expo.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 18
+- npm or yarn
+- Expo CLI: `npm install -g expo-cli`
+- Xcode (for iOS development)
+- Android Studio (for Android development)
+
+### Installation
+
+1. Navigate to the mobile directory:
+```bash
+cd mobile
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+### Running the App
+
+#### Using Expo Go (Fastest way to test):
+```bash
+npm start
+```
+
+Then:
+- Press `i` for iOS simulator
+- Press `a` for Android emulator
+- Scan the QR code with Expo Go app on your physical device
+
+#### Building for iOS:
+```bash
+npm run ios
+```
+
+This opens the iOS simulator with your app.
+
+#### Building for Android:
+```bash
+npm run android
+```
+
+This opens the Android emulator with your app.
+
+#### Web version:
+```bash
+npm run web
+```
 
 ## Project Structure
 
 ```
-ReptraK/
-├── src/                    # Web app (React + Vite)
-├── mobile/                 # Native app (React Native + Expo)
-├── styles/                 # Web styles (SCSS)
-├── assets/                 # Shared assets
-└── index.html              # Web entry point
+mobile/
+├── src/
+│   ├── App.jsx                 # Main app with navigation
+│   ├── screens/                # Screen components
+│   │   ├── OnboardingScreen.js # Onboarding flow
+│   │   ├── DashboardScreen.js  # Home/dashboard
+│   │   ├── CalendarScreen.js   # Calendar view
+│   │   ├── ProfileScreen.js    # Profile & stats
+│   │   └── PremiumScreen.js    # Premium features
+│   ├── components/             # Reusable components
+│   │   ├── ActivityRow.js      # Activity input
+│   │   ├── GlassButton.js      # Glass-style buttons
+│   │   └── ZoneCard.js         # Zone badges
+│   └── lib/
+│       └── reptrak.js          # Business logic
+├── index.js                    # App entry point
+├── app.json                    # Expo config
+└── package.json               # Dependencies
 ```
 
-## Web App Setup
+## Features
 
-The web version runs on React + Vite for fast development:
+### Core Features (Free)
+- 📱 Daily habit tracking
+- 📅 Weekly and monthly calendar views
+- 🔥 Streak tracking
+- 📊 Progress visualization with color zones
 
+### Premium Features
+- 📈 Weekly compare-and-contrast analysis
+- 📉 Advanced analytics and insights
+- 🎯 Unlimited custom habits
+- 💾 Cloud sync (future)
+
+## Development Notes
+
+### State Management
+The app uses React `useState` and `useCallback` with `AsyncStorage` for persistence. The `reptrak.js` library handles all business logic and calculations.
+
+### Styling
+All components use React Native `StyleSheet` for styling. No CSS or CSS-in-JS - pure React Native styles.
+
+### Animations
+Currently, the app uses basic React Native animations. For more complex animations (like the liquid fill effect), consider upgrading to `react-native-reanimated` or `react-native-skia`.
+
+### Navigation
+The app uses React Navigation with bottom tab navigator for the main screens.
+
+## Building for Production
+
+### iOS
 ```bash
+eas build --platform ios
+```
+
+### Android
+```bash
+eas build --platform android
+```
+
+You'll need to set up an EAS account at https://eas.expo.dev
+
+## Troubleshooting
+
+### Metro bundler issues:
+```bash
+npm start -- --reset-cache
+```
+
+### Module not found errors:
+```bash
+rm -rf node_modules
 npm install
-npm run dev
 ```
 
-Available scripts:
-
-- `npm run build` - Production build
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-The web app loads GSAP and Font Awesome from CDN via [`index.html`](index.html).
-
-## Mobile App Setup (React Native + Expo)
-
-The mobile version builds native iOS and Android apps using React Native:
-
+### Clearing Expo cache:
 ```bash
-cd mobile
-npm install
-npm start
+expo start -c
 ```
 
-For detailed setup and Xcode integration, see [MOBILE_SETUP.md](MOBILE_SETUP.md).
+## Next Steps
 
-### Quick Start
+1. Add icons/splash screens in `assets/`
+2. Implement production analytics
+3. Set up Stripe/RevenueCat for premium payments
+4. Add cloud sync for user data
+5. Optimize animations with Reanimated
+6. Add notifications for daily reminders
 
-```bash
-# Start Expo development server
-cd mobile && npm start
+## Support
 
-# For iOS simulator
-npm run ios
-
-# For Android emulator
-npm run android
-
-# For web
-npm run web
-```
-
-### Testing in Xcode
-
-The easiest way to test in Xcode:
-
-1. Open the project: `open mobile/ios/reptrak.xcworkspace`
-2. Select a simulator target (iPhone 15 Pro, etc.)
-3. Run with Cmd+R
-
-Or use Expo Go:
-
-1. Run `npm start` from `mobile/` directory
-2. Press `i` for iOS simulator
-3. App loads in Expo Go automatically
-
-## Product direction
-
-ReptraK is a glossy, habit-tracking mobile product with a Frutiger Aero mood:
-
-- optimistic instead of austere
-- glassy instead of flat
-- layered instead of empty
-- calm instead of hyper-gamified
-
-The visual goal is to keep the original deep-indigo and aqua identity while upgrading structure, spacing, and polish so the interface feels premium and intentional.
-
-## Grid system
-
-The prototype uses a 4-column mobile grid tuned for a 402px artboard:
-
-- outer padding: 24px
-- column count: 4
-- gutter: 10px
-- default screen gap: 16px
-- large card radius: 30px
-- medium radius: 22px
-- small radius: 18px
-
-Layout rules:
-
-- one dominant hero surface above the fold
-- one primary action per screen
-- metrics grouped into 2-up or 3-up rows
-- dense information only after the first hero section
-- bottom navigation stays visually separate from content cards
-
-## Color and material
-
-Core palette:
-
-- deep indigo: `#23214D`
-- softened indigo: `#302D64`
-- cyan accent: `#6FD9FF`
-- bright highlight cyan: `#9CF1FF`
-- cool blue depth: `#49B7EA`
-
-Material rules:
-
-- glass surfaces use white at low opacity over dark indigo
-- all premium surfaces get top highlights plus inner gloss
-- glow is used selectively around CTAs, hero orbs, and progress surfaces
-- avoid making every card equally bright
-
-## Components
-
-### Glass cards
-
-- rounded, translucent, softly glowing
-- visible edge definition with a thin high-opacity border
-- top-half highlight sheen
-- stronger padding than the original prototype
-
-### Glossy buttons
-
-- primary buttons use layered aqua-white gradients
-- secondary buttons stay glassy and quiet
-- both use capsule radii and subtle hover lift
-
-### Progress ring
-
-- conic gradient + dark center well
-- inner glow for legibility
-- percentage is the focal number, not the decoration
-
-### Weekly grid
-
-- seven compact capsules
-- completed states glow brighter than empty states
-- labels stay tiny and quiet
-
-## Motion
-
-Motion should feel buoyant and ambient:
-
-- icons float upward with mild horizontal drift
-- screen transitions blur in and settle
-- no aggressive bounce or overshoot
-- decorative motion must never block the reading path
-
-## Screen priorities
-
-Landing:
-
-- emotional hook
-- glossy hero
-- immediate CTA
-
-Onboarding:
-
-- one task per screen
-- no clutter
-- clear forward progression
-
-Dashboard:
-
-- habit name
-- completion state
-- three compact metrics
-- weekly map
-- one log action
-
-Insights:
-
-- one chart hero
-- two supporting insights
-- one rule card to keep information architecture clean
-
-Premium:
-
-- concise value pitch
-- four feature badges
-- one subscription CTA
-
-## Build process
-
-### Phase 1
-
-- define tokens
-- define grid
-- define reusable card/button/input/nav patterns
-
-### Phase 2
-
-- implement onboarding flow
-- implement dashboard shell
-- implement progress logic and persistence
-
-### Phase 3
-
-- add richer analytics
-- add premium gating
-- refine motion and ambient atmosphere
-
-### Phase 4
-
-- port to a real mobile stack
-- keep this repo as visual reference or design prototype
-
-## Notes
-
-This repository is currently a static prototype, not a native mobile app. The cleanest long-term path is to treat this as the visual reference system and then rebuild the product on Expo + React Native once the UI language is locked.
+For React Native documentation, see: https://reactnative.dev
+For Expo documentation, see: https://docs.expo.dev

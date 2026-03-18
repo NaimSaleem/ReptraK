@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export const STORAGE_KEY = 'reptrak-user';
 
 export const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -7,30 +9,30 @@ export const ZONES = {
   low: {
     label: 'Reset zone',
     badge: 'Low',
-    gradient: 'linear-gradient(180deg, rgba(255, 147, 92, 0.96), rgba(255, 101, 48, 0.62))',
-    accent: '#ff9f6d',
-    ring: 'rgba(255, 150, 88, 0.92)'
+    color: '#ff6530',
+    lightColor: '#ff9f6d',
+    textColor: '#102044'
   },
   mid: {
     label: 'Building zone',
     badge: 'Mid',
-    gradient: 'linear-gradient(180deg, rgba(255, 236, 131, 0.98), rgba(255, 188, 72, 0.62))',
-    accent: '#ffe586',
-    ring: 'rgba(255, 224, 110, 0.94)'
+    color: '#ffbc48',
+    lightColor: '#ffe586',
+    textColor: '#102044'
   },
   complete: {
     label: 'Strong zone',
     badge: 'Green',
-    gradient: 'linear-gradient(180deg, rgba(121, 244, 156, 0.96), rgba(35, 194, 106, 0.62))',
-    accent: '#7bf29c',
-    ring: 'rgba(109, 232, 146, 0.94)'
+    color: '#23c26a',
+    lightColor: '#79f49c',
+    textColor: '#102044'
   },
   perfect: {
     label: 'Crystal zone',
     badge: 'Full',
-    gradient: 'linear-gradient(180deg, rgba(136, 239, 255, 1), rgba(54, 170, 255, 0.72))',
-    accent: '#88efff',
-    ring: 'rgba(111, 217, 255, 0.98)'
+    color: '#36aaff',
+    lightColor: '#88efff',
+    textColor: '#102044'
   }
 };
 
@@ -112,9 +114,9 @@ export function normalizeUser(rawUser = {}) {
   return merged;
 }
 
-export function loadUser() {
+export async function loadUser() {
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = await AsyncStorage.getItem(STORAGE_KEY);
     if (!stored) return normalizeUser();
     return normalizeUser(JSON.parse(stored));
   } catch {
@@ -122,8 +124,12 @@ export function loadUser() {
   }
 }
 
-export function persistUser(user) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+export async function persistUser(user) {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } catch (error) {
+    console.error('Failed to persist user:', error);
+  }
 }
 
 export function isOnboarded(user) {
@@ -322,4 +328,3 @@ export function getProfileContent(percent) {
     summary: 'The day is still under 50%, so the summary shifts into a red-orange warning state. Focus on one activity and build upward instead of trying to fix everything at once.'
   };
 }
-
