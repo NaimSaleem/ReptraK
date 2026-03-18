@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 import { getPremiumInsights } from '../lib/reptrak';
 import { AmbientGlow } from '../components/AmbientGlow';
+import { FadeInView } from '../components/FadeInView';
 import { GlassButton } from '../components/GlassButton';
+import { GlassSurface } from '../components/GlassSurface';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
 import { THEMES } from '../theme/palette';
@@ -23,7 +25,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: layout.appHorizontalPadding,
     paddingVertical: layout.appVerticalPadding,
-    paddingBottom: 122
+    paddingBottom: 136
   },
   title: {
     fontSize: 33,
@@ -34,30 +36,15 @@ const styles = StyleSheet.create({
     marginBottom: 14
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: glass.colors.textSoft,
     marginBottom: 16,
-    lineHeight: 19
+    lineHeight: 21
   },
   featureCard: {
-    backgroundColor: glass.colors.panel,
-    borderRadius: glass.radius.lg,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  featureGloss: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: 1,
-    height: '44%',
-    borderTopLeftRadius: glass.radius.lg - 1,
-    borderTopRightRadius: glass.radius.lg - 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)'
+    overflow: 'hidden'
   },
   featureHeader: {
     flexDirection: 'row',
@@ -100,23 +87,8 @@ const styles = StyleSheet.create({
   },
   pricingSection: {
     marginTop: 8,
-    backgroundColor: glass.colors.panelStrong,
-    borderRadius: glass.radius.xl,
     padding: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(136, 239, 255, 0.35)',
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  pricingGloss: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: 1,
-    height: '32%',
-    borderTopLeftRadius: glass.radius.xl - 1,
-    borderTopRightRadius: glass.radius.xl - 1,
-    backgroundColor: glass.colors.glare
+    overflow: 'hidden'
   },
   pricingTitle: {
     fontSize: 18,
@@ -271,99 +243,109 @@ export default function PremiumScreen({ user, onUserChange, theme }) {
     <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
       <AmbientGlow theme={theme} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Premium</Text>
-        <Text style={styles.subtitle}>
-          Free stays focused on daily tracking. Premium adds compare-and-contrast insights, trend detail, and deeper coaching.
-        </Text>
+        <FadeInView>
+          <Text style={styles.title}>Premium</Text>
+          <Text style={styles.subtitle}>
+            Free stays focused on daily tracking. Premium adds compare-and-contrast insights, trend detail, and deeper coaching.
+          </Text>
+        </FadeInView>
 
-        {FEATURES.map((feature) => (
-          <View key={feature.title} style={styles.featureCard}>
-            <View pointerEvents="none" style={styles.featureGloss} />
-            <View style={styles.featureHeader}>
-              <Text style={styles.featureTitle}>{feature.title}</Text>
-              {feature.isPremium && user.premium && (
-                <View style={styles.freeTag}>
-                  <Text style={styles.freeTagText}>ACTIVE</Text>
-                </View>
-              )}
-              {feature.isPremium && !user.premium && (
-                <View style={styles.premiumTag}>
-                  <Text style={styles.premiumTagText}>PREMIUM</Text>
-                </View>
-              )}
-              {!feature.isPremium && (
-                <View style={styles.freeTag}>
-                  <Text style={styles.freeTagText}>FREE</Text>
-                </View>
-              )}
-            </View>
-            <Text style={styles.featureDescription}>{feature.description}</Text>
-          </View>
+        {FEATURES.map((feature, index) => (
+          <FadeInView key={feature.title} delay={60 + (index * 50)}>
+            <GlassSurface style={styles.featureCard} radius={glass.radius.lg} fillColor={glass.colors.panel}>
+              <View style={styles.featureHeader}>
+                <Text style={styles.featureTitle}>{feature.title}</Text>
+                {feature.isPremium && user.premium && (
+                  <View style={styles.freeTag}>
+                    <Text style={styles.freeTagText}>ACTIVE</Text>
+                  </View>
+                )}
+                {feature.isPremium && !user.premium && (
+                  <View style={styles.premiumTag}>
+                    <Text style={styles.premiumTagText}>PREMIUM</Text>
+                  </View>
+                )}
+                {!feature.isPremium && (
+                  <View style={styles.freeTag}>
+                    <Text style={styles.freeTagText}>FREE</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.featureDescription}>{feature.description}</Text>
+            </GlassSurface>
+          </FadeInView>
         ))}
 
-        <View style={styles.pricingSection}>
-          <View pointerEvents="none" style={styles.pricingGloss} />
-          <Text style={styles.pricingTitle}>Upgrade to Premium</Text>
-          <Text style={styles.pricingCopy}>
-            Unlock advanced analytics, weekly insights, and detailed progress tracking.
-          </Text>
+        <FadeInView delay={380}>
+          <GlassSurface
+            style={styles.pricingSection}
+            radius={glass.radius.xl}
+            fillColor={glass.colors.panelStrong}
+            accentColor={theme?.accentStrong || glass.colors.accentStrong}
+            borderColor='rgba(136, 239, 255, 0.35)'
+          >
+            <Text style={styles.pricingTitle}>Upgrade to Premium</Text>
+            <Text style={styles.pricingCopy}>
+              Unlock advanced analytics, weekly insights, and detailed progress tracking.
+            </Text>
 
-          <View style={styles.tierGrid}>
-            <View style={styles.priceBox}>
-              <Text style={styles.priceTitle}>Intro Offer</Text>
-              <Text style={styles.priceAmount}>$2.99</Text>
-              <Text style={styles.priceFoot}>First 30 days</Text>
+            <View style={styles.tierGrid}>
+              <View style={styles.priceBox}>
+                <Text style={styles.priceTitle}>Intro Offer</Text>
+                <Text style={styles.priceAmount}>$2.99</Text>
+                <Text style={styles.priceFoot}>First 30 days</Text>
+              </View>
+              <View style={styles.priceBox}>
+                <Text style={styles.priceTitle}>Monthly</Text>
+                <Text style={styles.priceAmount}>$5.99</Text>
+                <Text style={styles.priceFoot}>After intro period</Text>
+              </View>
             </View>
-            <View style={styles.priceBox}>
-              <Text style={styles.priceTitle}>Monthly</Text>
-              <Text style={styles.priceAmount}>$5.99</Text>
-              <Text style={styles.priceFoot}>After intro period</Text>
-            </View>
-          </View>
 
-          <View style={styles.insightGrid}>
-            <View style={styles.insightCard}>
-              <Text style={styles.insightLabel}>Week Avg</Text>
-              <Text style={styles.insightValue}>{insights.weekAvg}%</Text>
+            <View style={styles.insightGrid}>
+              <View style={styles.insightCard}>
+                <Text style={styles.insightLabel}>Week Avg</Text>
+                <Text style={styles.insightValue}>{insights.weekAvg}%</Text>
+              </View>
+              <View style={styles.insightCard}>
+                <Text style={styles.insightLabel}>Month Avg</Text>
+                <Text style={styles.insightValue}>{insights.monthAvg}%</Text>
+              </View>
+              <View style={styles.insightCard}>
+                <Text style={styles.insightLabel}>Trend</Text>
+                <Text style={styles.insightValue}>{insights.trend >= 0 ? '+' : ''}{insights.trend}</Text>
+              </View>
             </View>
-            <View style={styles.insightCard}>
-              <Text style={styles.insightLabel}>Month Avg</Text>
-              <Text style={styles.insightValue}>{insights.monthAvg}%</Text>
-            </View>
-            <View style={styles.insightCard}>
-              <Text style={styles.insightLabel}>Trend</Text>
-              <Text style={styles.insightValue}>{insights.trend >= 0 ? '+' : ''}{insights.trend}</Text>
-            </View>
-          </View>
 
-          <Text style={styles.themeTitle}>Premium themes</Text>
-          <View style={styles.themeGrid}>
-            {Object.values(THEMES).map((themeOption) => (
-              <TouchableOpacity
-                key={themeOption.id}
-                style={[
-                  styles.themeCard,
-                  user.theme === themeOption.id && {
-                    borderColor: themeOption.accent,
-                    backgroundColor: `${themeOption.accent}20`
-                  }
-                ]}
-                onPress={() => applyTheme(themeOption.id)}
-              >
-                <View style={[styles.themeSwatch, { backgroundColor: themeOption.bgBase }]} />
-                <Text style={styles.themeName}>{themeOption.label}</Text>
-                <Text style={styles.themeStatus}>
-                  {user.theme === themeOption.id ? 'Active' : 'Tap to apply'}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+            <Text style={styles.themeTitle}>Premium themes</Text>
+            <View style={styles.themeGrid}>
+              {Object.values(THEMES).map((themeOption) => (
+                <TouchableOpacity
+                  key={themeOption.id}
+                  style={[
+                    styles.themeCard,
+                    user.theme === themeOption.id && {
+                      borderColor: themeOption.accent,
+                      backgroundColor: `${themeOption.accent}20`
+                    }
+                  ]}
+                  onPress={() => applyTheme(themeOption.id)}
+                >
+                  <View style={[styles.themeSwatch, { backgroundColor: themeOption.bgBase }]} />
+                  <Text style={styles.themeName}>{themeOption.label}</Text>
+                  <Text style={styles.themeStatus}>
+                    {user.theme === themeOption.id ? 'Active' : 'Tap to apply'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          <GlassButton
-            title={user.premium ? 'Premium Active' : 'Subscribe Now'}
-            onPress={handleSubscribe}
-          />
-        </View>
+            <GlassButton
+              title={user.premium ? 'Premium Active' : 'Subscribe Now'}
+              onPress={handleSubscribe}
+            />
+          </GlassSurface>
+        </FadeInView>
       </ScrollView>
     </SafeAreaView>
   );

@@ -22,7 +22,9 @@ import {
 } from '../lib/reptrak';
 import { ActivityRow } from '../components/ActivityRow';
 import { AmbientGlow } from '../components/AmbientGlow';
+import { FadeInView } from '../components/FadeInView';
 import { GlassButton } from '../components/GlassButton';
+import { GlassSurface } from '../components/GlassSurface';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
 
@@ -34,40 +36,24 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: layout.appHorizontalPadding,
     paddingVertical: layout.appVerticalPadding,
-    paddingBottom: 122
+    paddingBottom: 136
   },
   heroCard: {
-    backgroundColor: glass.colors.panelStrong,
-    borderRadius: glass.radius.xl,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
-    padding: 16,
+    padding: 18,
     marginBottom: layout.sectionGap,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  heroGloss: {
-    position: 'absolute',
-    left: 2,
-    right: 2,
-    top: 2,
-    height: '40%',
-    borderTopLeftRadius: glass.radius.xl,
-    borderTopRightRadius: glass.radius.xl,
-    backgroundColor: glass.colors.glare
+    gap: 6
   },
   greeting: {
-    fontSize: 33,
-    lineHeight: 36,
-    letterSpacing: -1,
+    fontSize: 30,
+    lineHeight: 34,
+    letterSpacing: -0.9,
     fontWeight: '800',
-    color: glass.colors.textMain,
-    marginBottom: 6
+    color: glass.colors.textMain
   },
   displayName: {
-    fontSize: 12,
-    color: glass.colors.textSoft,
-    marginBottom: 20
+    fontSize: 14,
+    lineHeight: 20,
+    color: glass.colors.textSoft
   },
   statGrid: {
     flexDirection: 'row',
@@ -76,41 +62,26 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: glass.colors.panel,
-    borderRadius: 18,
     padding: 12,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  statGloss: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: 1,
-    height: '50%',
-    borderTopLeftRadius: 17,
-    borderTopRightRadius: 17,
-    backgroundColor: 'rgba(255, 255, 255, 0.19)'
+    minHeight: 94,
+    justifyContent: 'space-between'
   },
   statLabel: {
     fontSize: 11,
     color: glass.colors.textSoft,
     marginBottom: 4,
-    fontWeight: '500'
+    fontWeight: '700',
+    letterSpacing: 0.4
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 19,
+    fontWeight: '800',
     color: glass.colors.textMain
   },
   coachSection: {
-    borderRadius: 22,
     padding: 18,
-    borderWidth: 1,
     marginBottom: layout.sectionGap,
-    ...glass.shadow.soft
+    gap: 4
   },
   coachHeading: {
     fontSize: 16,
@@ -121,19 +92,20 @@ const styles = StyleSheet.create({
   coachKicker: {
     fontSize: 12,
     color: glass.colors.textSoft,
-    marginBottom: 8,
-    fontWeight: '500'
+    marginBottom: 4,
+    fontWeight: '700',
+    letterSpacing: 0.4
   },
   coachCopy: {
-    fontSize: 13,
+    fontSize: 14,
     color: 'rgba(237, 246, 255, 0.82)',
-    lineHeight: 20
+    lineHeight: 21
   },
   activitiesTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: glass.colors.textMain,
-    marginBottom: 12
+    marginBottom: 6
   },
   sectionKicker: {
     fontSize: 11,
@@ -144,6 +116,12 @@ const styles = StyleSheet.create({
   },
   quickAddButton: {
     marginBottom: 14
+  },
+  helperText: {
+    color: glass.colors.textSoft,
+    fontSize: 11,
+    lineHeight: 17,
+    marginTop: 8
   }
 });
 
@@ -168,6 +146,17 @@ export default function DashboardScreen({ user, onUserChange, theme }) {
         }
         return activity;
       })
+    });
+  };
+
+  const incrementActivity = (activityId, field, step) => {
+    onUserChange({
+      ...user,
+      activities: user.activities.map((activity) => (
+        activity.id === activityId
+          ? { ...activity, [field]: Math.max((Number(activity[field]) || 0) + step, 0) }
+          : activity
+      ))
     });
   };
 
@@ -206,40 +195,49 @@ export default function DashboardScreen({ user, onUserChange, theme }) {
     <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
       <AmbientGlow theme={theme} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.heroCard}>
-          <View pointerEvents="none" style={styles.heroGloss} />
-          <Text style={styles.greeting}>{getGreeting()}, {user.name}</Text>
-          <Text style={styles.displayName}>{dayPercent}% of your goals complete today</Text>
-        </View>
+        <FadeInView>
+          <GlassSurface style={styles.heroCard} radius={glass.radius.xl} fillColor={glass.colors.panelStrong}>
+            <Text style={styles.greeting}>{getGreeting()}, {user.name}</Text>
+            <Text style={styles.displayName}>
+              {dayPercent}% complete today. {focus?.name || 'Your focus habit'} drives the mastery score, while supplementary habits stay active below so you can still practice them.
+            </Text>
+          </GlassSurface>
+        </FadeInView>
 
         <View style={styles.statGrid}>
-          <View style={styles.statCard}>
-            <View pointerEvents="none" style={styles.statGloss} />
-            <Text style={styles.statLabel}>Streak</Text>
-            <Text style={styles.statValue}>{user.streak || 0}d</Text>
-          </View>
-          <View style={styles.statCard}>
-            <View pointerEvents="none" style={styles.statGloss} />
-            <Text style={styles.statLabel}>Completed</Text>
-            <Text style={styles.statValue}>{completedActivities}/{trackableTotal}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <View pointerEvents="none" style={styles.statGloss} />
-            <Text style={styles.statLabel}>Today</Text>
-            <Text style={styles.statValue}>{dayPercent}%</Text>
-          </View>
+          <FadeInView delay={60} style={{ flex: 1 }}>
+            <GlassSurface style={styles.statCard} radius={18} fillColor={glass.colors.panel}>
+              <Text style={styles.statLabel}>Streak</Text>
+              <Text style={styles.statValue}>{user.streak || 0}d</Text>
+            </GlassSurface>
+          </FadeInView>
+          <FadeInView delay={120} style={{ flex: 1 }}>
+            <GlassSurface style={styles.statCard} radius={18} fillColor={glass.colors.panel}>
+              <Text style={styles.statLabel}>Completed</Text>
+              <Text style={styles.statValue}>{completedActivities}/{trackableTotal}</Text>
+            </GlassSurface>
+          </FadeInView>
+          <FadeInView delay={180} style={{ flex: 1 }}>
+            <GlassSurface style={styles.statCard} radius={18} fillColor={glass.colors.panel}>
+              <Text style={styles.statLabel}>Today</Text>
+              <Text style={styles.statValue}>{dayPercent}%</Text>
+            </GlassSurface>
+          </FadeInView>
         </View>
 
-        <View
-          style={[
-            styles.coachSection,
-            { backgroundColor: `${zone.color}20`, borderColor: `${zone.color}40` }
-          ]}
-        >
-          <Text style={styles.coachHeading}>{coach.heading}</Text>
-          <Text style={styles.coachKicker}>{coach.kicker}</Text>
-          <Text style={styles.coachCopy}>{coach.copy}</Text>
-        </View>
+        <FadeInView delay={220}>
+          <GlassSurface
+            style={styles.coachSection}
+            radius={22}
+            fillColor={`${zone.color}16`}
+            accentColor={zone.color}
+            borderColor={`${zone.color}4d`}
+          >
+            <Text style={styles.coachHeading}>{coach.heading}</Text>
+            <Text style={styles.coachKicker}>{coach.kicker}</Text>
+            <Text style={styles.coachCopy}>{coach.copy}</Text>
+          </GlassSurface>
+        </FadeInView>
 
         <Text style={styles.sectionKicker}>ACTIVITIES</Text>
         <Text style={styles.activitiesTitle}>Master one habit at a time</Text>
@@ -256,18 +254,21 @@ export default function DashboardScreen({ user, onUserChange, theme }) {
           style={styles.quickAddButton}
         />
 
-        {user.activities.map((activity) => (
+        {user.activities.map((activity, index) => (
           <ActivityRow
             key={activity.id}
             activity={activity}
             onCountChange={(value) => handleActivityChange(activity.id, 'loggedCount', value)}
             onTimeChange={(value) => handleActivityChange(activity.id, 'timeLogged', value)}
+            onIncrementCount={() => incrementActivity(activity.id, 'loggedCount', 1)}
+            onIncrementTime={() => incrementActivity(activity.id, 'timeLogged', 10)}
             onSetFocus={() => handleSetFocus(activity.id)}
+            animationDelay={280 + (index * 60)}
           />
         ))}
 
         {supplementary.length > 0 && (
-          <Text style={{ color: glass.colors.textSoft, fontSize: 11, marginTop: 8 }}>
+          <Text style={styles.helperText}>
             Supplementary habits stay visible for support, but only your focus habit updates the mastery score.
           </Text>
         )}

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { getZoneConfig } from '../lib/reptrak';
 import { glass } from '../theme/glass';
 
@@ -16,19 +18,33 @@ const styles = StyleSheet.create({
     borderRadius: ORB_SIZE / 2,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.26)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     ...glass.shadow.soft
   },
-  gloss: {
+  blur: {
+    ...StyleSheet.absoluteFillObject
+  },
+  orbTone: {
+    ...StyleSheet.absoluteFillObject
+  },
+  softHighlight: {
     position: 'absolute',
-    left: 26,
-    top: 22,
-    width: 120,
-    height: 28,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.36)',
-    transform: [{ rotate: '-14deg' }]
+    left: 18,
+    right: 18,
+    top: 18,
+    height: 84,
+    borderRadius: 999
+  },
+  rim: {
+    position: 'absolute',
+    left: 2,
+    right: 2,
+    top: 2,
+    bottom: 2,
+    borderRadius: ORB_SIZE / 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.14)'
   },
   liquidFill: {
     position: 'absolute',
@@ -51,23 +67,26 @@ const styles = StyleSheet.create({
   },
   center: {
     position: 'absolute',
-    left: 40,
-    top: 40,
-    right: 40,
-    bottom: 40,
+    left: 34,
+    top: 34,
+    right: 34,
+    bottom: 34,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.34)',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    overflow: 'hidden'
   },
   percent: {
     fontSize: 43,
     lineHeight: 46,
     letterSpacing: -1.2,
     fontWeight: '800',
-    color: glass.colors.textMain
+    color: glass.colors.textMain,
+    textShadowColor: 'rgba(4, 9, 23, 0.45)',
+    textShadowRadius: 12
   },
   label: {
     marginTop: 4,
@@ -141,7 +160,18 @@ export function LiquidGlassOrb({ percent, onPress }) {
       style={styles.wrapper}
     >
       <Animated.View style={[styles.orb, { transform: [{ translateX: shakeTranslateX }] }]}>
-        <View style={styles.gloss} />
+        <BlurView intensity={34} tint="dark" style={styles.blur} />
+        <LinearGradient
+          colors={['rgba(240, 249, 255, 0.18)', 'rgba(111, 170, 255, 0.08)', 'rgba(13, 18, 47, 0.2)']}
+          locations={[0, 0.46, 1]}
+          style={styles.orbTone}
+        />
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.24)', 'rgba(255, 255, 255, 0.04)']}
+          locations={[0, 1]}
+          style={styles.softHighlight}
+        />
+        <View style={styles.rim} />
 
         <Animated.View
           style={[
@@ -174,6 +204,7 @@ export function LiquidGlassOrb({ percent, onPress }) {
         </Animated.View>
 
         <View style={styles.center}>
+          <BlurView intensity={20} tint="light" style={styles.blur} />
           <Text style={styles.percent}>{percent}%</Text>
           <Text style={styles.label}>TODAY SUMMARY</Text>
         </View>
@@ -181,4 +212,3 @@ export function LiquidGlassOrb({ percent, onPress }) {
     </Pressable>
   );
 }
-

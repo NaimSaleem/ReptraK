@@ -1,9 +1,9 @@
 export const layout = {
-  appHorizontalPadding: 16,
-  appVerticalPadding: 16,
+  appHorizontalPadding: 18,
+  appVerticalPadding: 18,
   gridColumns: 4,
-  gutter: 10,
-  sectionGap: 16,
-  cardPadding: 16,
-  edgeToEdgeInset: 6
+  gutter: 12,
+  sectionGap: 18,
+  cardPadding: 18,
+  edgeToEdgeInset: 8
 };

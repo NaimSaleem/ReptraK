@@ -415,14 +415,20 @@ export function toggleVoidDay(user, dayIndex) {
 export function getPremiumInsights(user) {
   const selectedDay = getSelectedDayIndex(user);
   const currentWeekStart = Math.floor(selectedDay / 7) * 7;
-  const currentWeek = user.month.slice(currentWeekStart, currentWeekStart + 7);
-  const previousWeek = user.month.slice(Math.max(currentWeekStart - 7, 0), currentWeekStart);
+  const currentWeek = user.month
+    .slice(currentWeekStart, currentWeekStart + 7)
+    .filter((_, index) => !isVoidDay(user, currentWeekStart + index));
+  const previousWeekStart = Math.max(currentWeekStart - 7, 0);
+  const previousWeek = user.month
+    .slice(previousWeekStart, currentWeekStart)
+    .filter((_, index) => !isVoidDay(user, previousWeekStart + index));
+  const activeMonth = user.month.filter((_, index) => !isVoidDay(user, index));
 
   const weekAvg = currentWeek.length
     ? Math.round(currentWeek.reduce((sum, value) => sum + value, 0) / currentWeek.length)
     : 0;
-  const monthAvg = user.month.length
-    ? Math.round(user.month.reduce((sum, value) => sum + value, 0) / user.month.length)
+  const monthAvg = activeMonth.length
+    ? Math.round(activeMonth.reduce((sum, value) => sum + value, 0) / activeMonth.length)
     : 0;
   const trend = previousWeek.length
     ? weekAvg - Math.round(previousWeek.reduce((sum, value) => sum + value, 0) / previousWeek.length)

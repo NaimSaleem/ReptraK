@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { glass } from '../theme/glass';
 
 const styles = StyleSheet.create({
@@ -11,13 +11,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     fontWeight: '700',
     color: glass.colors.accentStrong,
-    opacity: 0.2,
+    opacity: 0.16,
     textShadowColor: 'rgba(111, 217, 255, 0.55)',
     textShadowRadius: 10
   }
 });
 
-const GLYPHS = ['✦', '◈', '●', '◉', '◇', '✶'];
+const GLYPHS = ['✦', '◈', '◇', '✶', '✧', '⟡'];
 
 export function FloatingGlyphs({ color = glass.colors.accentStrong, glow = 'rgba(111, 217, 255, 0.55)' }) {
   const anim = useRef(new Animated.Value(0)).current;

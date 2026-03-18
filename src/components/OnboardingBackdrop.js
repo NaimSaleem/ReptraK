@@ -27,27 +27,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  iconShell: {
-    width: 32,
-    height: 32,
-    borderRadius: 11,
-    borderWidth: 1,
-    borderColor: 'rgba(168, 225, 255, 0.2)',
-    backgroundColor: 'rgba(140, 190, 240, 0.06)',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  orb: {
-    position: 'absolute',
-    width: 14,
-    height: 14,
-    borderRadius: 999,
-    left: 9,
-    top: 9,
-    backgroundColor: 'rgba(184, 242, 255, 0.9)',
-    shadowColor: '#89e7ff',
-    shadowOpacity: 0.34,
-    shadowRadius: 10
+  icon: {
+    textShadowColor: 'rgba(137, 231, 255, 0.42)',
+    textShadowRadius: 12
   }
 });
 
@@ -82,14 +64,9 @@ function FloatingItem({ item }) {
     outputRange: [0.28, 0.28, 0.08, 0]
   });
 
-  const orbOpacity = t.interpolate({
-    inputRange: [0, 0.35, 0.62, 1],
-    outputRange: [0, 0, 0.58, 0]
-  });
-
   const iconOpacity = t.interpolate({
     inputRange: [0, 0.2, 0.85, 1],
-    outputRange: [0.24, 0.42, 0.2, 0]
+    outputRange: [0.16, 0.38, 0.18, 0]
   });
 
   return (
@@ -103,16 +80,16 @@ function FloatingItem({ item }) {
         }
       ]}
     >
-      <View style={styles.iconShell}>
-        <AnimatedFA
-          name={item.icon}
-          size={item.size}
-          solid
-          style={{ opacity: Animated.multiply(emojiOpacity, iconOpacity) }}
-          color={item.color}
-        />
-      </View>
-      <Animated.View style={[styles.orb, { opacity: orbOpacity }]} />
+      <AnimatedFA
+        name={item.icon}
+        size={item.size}
+        solid
+        style={[
+          styles.icon,
+          { opacity: Animated.multiply(emojiOpacity, iconOpacity) }
+        ]}
+        color={item.color}
+      />
     </Animated.View>
   );
 }
@@ -125,9 +102,9 @@ export function OnboardingBackdrop({ theme }) {
       icon: ICONS[idx % ICONS.length],
       left: `${6 + ((idx * 12) % 84)}%`,
       top: `${58 + ((idx * 9) % 36)}%`,
-      size: 14 + (idx % 3) * 2,
-      duration: 2600 + (idx % 5) * 280,
-      travel: 210 + (idx % 7) * 24,
+      size: 16 + (idx % 3) * 2,
+      duration: 2400 + (idx % 5) * 220,
+      travel: 190 + (idx % 7) * 20,
       color: iconColor
     }))
   ), [iconColor]);

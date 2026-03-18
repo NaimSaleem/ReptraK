@@ -9,6 +9,8 @@ import {
 import { getDayPercent, getFocusActivity, getProfileContent, getCompletedActivityCount, getTrackableActivities } from '../lib/reptrak';
 import { ActivityRow } from '../components/ActivityRow';
 import { AmbientGlow } from '../components/AmbientGlow';
+import { FadeInView } from '../components/FadeInView';
+import { GlassSurface } from '../components/GlassSurface';
 import { LiquidGlassOrb } from '../components/LiquidGlassOrb';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
@@ -21,7 +23,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: layout.appHorizontalPadding,
     paddingVertical: layout.appVerticalPadding,
-    paddingBottom: 122
+    paddingBottom: 136
   },
   header: {
     marginBottom: 18
@@ -35,7 +37,8 @@ const styles = StyleSheet.create({
     marginBottom: 4
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 14,
+    lineHeight: 20,
     color: glass.colors.textSoft
   },
   orbWrap: {
@@ -43,24 +46,9 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   profileCard: {
-    backgroundColor: glass.colors.panelStrong,
-    borderRadius: 20,
     padding: 18,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
     marginBottom: 16,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  profileGloss: {
-    position: 'absolute',
-    left: 1,
-    right: 1,
-    top: 1,
-    height: '46%',
-    borderTopLeftRadius: 19,
-    borderTopRightRadius: 19,
-    backgroundColor: glass.colors.glare
+    overflow: 'hidden'
   },
   profileHeadline: {
     fontSize: 16,
@@ -74,24 +62,9 @@ const styles = StyleSheet.create({
     lineHeight: 20
   },
   statsSection: {
-    backgroundColor: glass.colors.panel,
-    borderRadius: 20,
     padding: 18,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
     marginBottom: 20,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  statsGloss: {
-    position: 'absolute',
-    left: 1,
-    right: 1,
-    top: 1,
-    height: '40%',
-    borderTopLeftRadius: 19,
-    borderTopRightRadius: 19,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)'
+    overflow: 'hidden'
   },
   statsTitle: {
     fontSize: 14,
@@ -137,65 +110,68 @@ export default function ProfileScreen({ user, theme }) {
     <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
       <AmbientGlow theme={theme} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
+        <FadeInView style={styles.header}>
           <Text style={styles.title}>Profile</Text>
           <Text style={styles.subtitle}>{user.name}'s habit tracking journey</Text>
-        </View>
+        </FadeInView>
 
-        <View style={styles.orbWrap}>
+        <FadeInView style={styles.orbWrap} delay={60}>
           <LiquidGlassOrb percent={dayPercent} />
-        </View>
+        </FadeInView>
 
-        <View style={styles.profileCard}>
-          <View pointerEvents="none" style={styles.profileGloss} />
-          <Text style={styles.profileHeadline}>{profile.headline}</Text>
-          <Text style={styles.profileSummary}>{profile.summary}</Text>
-        </View>
+        <FadeInView delay={120}>
+          <GlassSurface style={styles.profileCard} radius={20} fillColor={glass.colors.panelStrong}>
+            <Text style={styles.profileHeadline}>{profile.headline}</Text>
+            <Text style={styles.profileSummary}>{profile.summary}</Text>
+          </GlassSurface>
+        </FadeInView>
 
-        <View style={styles.statsSection}>
-          <View pointerEvents="none" style={styles.statsGloss} />
-          <Text style={styles.statsTitle}>Your Stats</Text>
-          <View style={[styles.statRow]}>
-            <Text style={styles.statLabel}>Current Focus</Text>
-            <Text style={styles.statValue}>{focus?.name || 'None'}</Text>
-          </View>
-          <View style={[styles.statRow]}>
-            <Text style={styles.statLabel}>Streak</Text>
-            <Text style={styles.statValue}>{user.streak || 0} days</Text>
-          </View>
-          <View style={[styles.statRow]}>
-            <Text style={styles.statLabel}>Total Reps</Text>
-            <Text style={styles.statValue}>{user.count || 0}</Text>
-          </View>
-          <View style={[styles.statRow]}>
-            <Text style={styles.statLabel}>Minutes Logged</Text>
-            <Text style={styles.statValue}>{user.minutes || 0}</Text>
-          </View>
-          <View style={[styles.statRow]}>
-            <Text style={styles.statLabel}>Activities Above 75%</Text>
-            <Text style={styles.statValue}>{completedActivities}/{trackableTotal}</Text>
-          </View>
-          <View style={[styles.statRow, styles.statRowLast]}>
-            <Text style={styles.statLabel}>Today's Completion</Text>
-            <Text style={styles.statValue}>{dayPercent}%</Text>
-          </View>
-        </View>
+        <FadeInView delay={180}>
+          <GlassSurface style={styles.statsSection} radius={20} fillColor={glass.colors.panel}>
+            <Text style={styles.statsTitle}>Your Stats</Text>
+            <View style={[styles.statRow]}>
+              <Text style={styles.statLabel}>Current Focus</Text>
+              <Text style={styles.statValue}>{focus?.name || 'None'}</Text>
+            </View>
+            <View style={[styles.statRow]}>
+              <Text style={styles.statLabel}>Streak</Text>
+              <Text style={styles.statValue}>{user.streak || 0} days</Text>
+            </View>
+            <View style={[styles.statRow]}>
+              <Text style={styles.statLabel}>Total Reps</Text>
+              <Text style={styles.statValue}>{user.count || 0}</Text>
+            </View>
+            <View style={[styles.statRow]}>
+              <Text style={styles.statLabel}>Minutes Logged</Text>
+              <Text style={styles.statValue}>{user.minutes || 0}</Text>
+            </View>
+            <View style={[styles.statRow]}>
+              <Text style={styles.statLabel}>Activities Above 75%</Text>
+              <Text style={styles.statValue}>{completedActivities}/{trackableTotal}</Text>
+            </View>
+            <View style={[styles.statRow, styles.statRowLast]}>
+              <Text style={styles.statLabel}>Today's Completion</Text>
+              <Text style={styles.statValue}>{dayPercent}%</Text>
+            </View>
+          </GlassSurface>
+        </FadeInView>
 
         {!!user.focusArchive?.length && (
-          <View style={styles.statsSection}>
-            <View pointerEvents="none" style={styles.statsGloss} />
-            <Text style={styles.statsTitle}>Archived Focus Sessions</Text>
-            {user.focusArchive.slice(0, 3).map((entry) => (
-              <View key={entry.switchedAt} style={[styles.statRow]}>
-                <Text style={styles.statLabel}>{entry.name}</Text>
-                <Text style={styles.statValue}>{entry.finalPercent}%</Text>
-              </View>
-            ))}
-          </View>
+          <FadeInView delay={240}>
+            <GlassSurface style={styles.statsSection} radius={20} fillColor={glass.colors.panel}>
+              <Text style={styles.statsTitle}>Archived Focus Sessions</Text>
+              {user.focusArchive.slice(0, 3).map((entry) => (
+                <View key={entry.switchedAt} style={[styles.statRow]}>
+                  <Text style={styles.statLabel}>{entry.name}</Text>
+                  <Text style={styles.statValue}>{entry.finalPercent}%</Text>
+                </View>
+              ))}
+            </GlassSurface>
+          </FadeInView>
         )}
 
         <Text style={styles.activitiesTitle}>All Activities</Text>
-        {user.activities.map((activity) => (
+        {user.activities.map((activity, index) => (
           <View key={activity.id} style={{ opacity: 0.7 }}>
             <ActivityRow
               activity={activity}
@@ -203,6 +179,7 @@ export default function ProfileScreen({ user, theme }) {
               onTimeChange={() => {}}
               editable={false}
               showZone={true}
+              animationDelay={280 + (index * 60)}
             />
           </View>
         ))}

@@ -1,5 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { glass } from '../theme/glass';
 
 const styles = StyleSheet.create({
@@ -16,27 +18,30 @@ const styles = StyleSheet.create({
     ...glass.shadow.soft
   },
   primaryButton: {
-    backgroundColor: glass.colors.buttonPrimaryBottom,
+    backgroundColor: 'rgba(100, 172, 227, 0.18)',
     borderWidth: 1,
     borderColor: glass.colors.border
   },
   secondaryButton: {
-    backgroundColor: glass.colors.buttonSecondaryBottom,
+    backgroundColor: 'rgba(164, 180, 228, 0.08)',
     borderWidth: 1,
     borderColor: glass.colors.borderSoft
   },
-  gloss: {
+  blur: {
+    ...StyleSheet.absoluteFillObject
+  },
+  tone: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 999
+  },
+  topGlow: {
     position: 'absolute',
-    top: 0,
+    top: 1,
     left: 1,
     right: 1,
-    height: '54%',
+    height: '52%',
     borderTopLeftRadius: 999,
-    borderTopRightRadius: 999,
-    backgroundColor: glass.colors.buttonPrimaryTop
-  },
-  glossSecondary: {
-    backgroundColor: glass.colors.buttonSecondaryTop
+    borderTopRightRadius: 999
   },
   innerStroke: {
     position: 'absolute',
@@ -50,8 +55,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: -0.2,
+    fontWeight: '800',
+    letterSpacing: -0.15,
     color: glass.colors.textMain
   },
   primaryText: {
@@ -61,9 +66,25 @@ const styles = StyleSheet.create({
 
 export function GlassButton({ title, onPress, variant = 'primary', style }) {
   const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(12)).current;
   const buttonStyle = variant === 'primary' ? styles.primaryButton : styles.secondaryButton;
   const textStyle = variant === 'primary' ? styles.primaryText : null;
-  const glossStyle = variant === 'primary' ? null : styles.glossSecondary;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 360,
+        useNativeDriver: true
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 360,
+        useNativeDriver: true
+      })
+    ]).start();
+  }, [opacity, translateY]);
 
   const animateTo = (value) => {
     Animated.spring(scale, {
@@ -85,10 +106,33 @@ export function GlassButton({ title, onPress, variant = 'primary', style }) {
         style={[
           styles.button,
           buttonStyle,
-          { transform: [{ scale }] }
+          {
+            opacity,
+            transform: [{ translateY }, { scale }]
+          }
         ]}
       >
-        <View pointerEvents="none" style={[styles.gloss, glossStyle]} />
+        <BlurView intensity={22} tint="light" style={styles.blur} />
+        <LinearGradient
+          pointerEvents="none"
+          colors={
+            variant === 'primary'
+              ? ['rgba(244, 253, 255, 0.56)', 'rgba(180, 228, 255, 0.18)', 'rgba(75, 132, 196, 0.22)']
+              : ['rgba(255, 255, 255, 0.16)', 'rgba(176, 191, 231, 0.08)', 'rgba(42, 54, 98, 0.16)']
+          }
+          locations={[0, 0.45, 1]}
+          style={styles.tone}
+        />
+        <LinearGradient
+          pointerEvents="none"
+          colors={
+            variant === 'primary'
+              ? [glass.colors.buttonPrimaryTop, 'rgba(255, 255, 255, 0.08)']
+              : [glass.colors.buttonSecondaryTop, 'rgba(255, 255, 255, 0.02)']
+          }
+          locations={[0, 1]}
+          style={styles.topGlow}
+        />
         <View pointerEvents="none" style={styles.innerStroke} />
         <Text style={[styles.buttonText, textStyle]}>{title}</Text>
       </Animated.View>

@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { GlassButton } from '../components/GlassButton';
 import { AmbientGlow } from '../components/AmbientGlow';
+import { FadeInView } from '../components/FadeInView';
+import { GlassSurface } from '../components/GlassSurface';
 import { OnboardingBackdrop } from '../components/OnboardingBackdrop';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
@@ -61,32 +63,18 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   subheader: {
-    fontSize: 18,
+    fontSize: 16,
+    lineHeight: 22,
     color: glass.colors.textSoft,
     marginBottom: 2,
     textAlign: 'center'
   },
   card: {
     display: 'flex',
-    backgroundColor: glass.colors.panelDeep,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
     paddingHorizontal: 14,
     paddingVertical: 16,
     gap: 10,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  cardGloss: {
-    position: 'absolute',
-    left: 1,
-    right: 1,
-    top: 1,
-    height: '46%',
-    borderTopLeftRadius: 23,
-    borderTopRightRadius: 23,
-    backgroundColor: 'rgba(255, 255, 255, 0.18)'
+    overflow: 'hidden'
   },
   stepTitle: {
     color: glass.colors.textMain,
@@ -102,26 +90,10 @@ const styles = StyleSheet.create({
     marginBottom: 2
   },
   inputContainer: {
-    backgroundColor: glass.colors.panel,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: glass.colors.borderSoft,
     minHeight: 56,
     paddingHorizontal: 16,
     justifyContent: 'center',
-    marginTop: 6,
-    overflow: 'hidden',
-    ...glass.shadow.soft
-  },
-  inputGloss: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: 1,
-    height: '54%',
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)'
+    marginTop: 6
   },
   input: {
     color: glass.colors.textMain,
@@ -289,7 +261,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
       <OnboardingBackdrop theme={theme} />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.shell}>
-          <View style={styles.hero}>
+          <FadeInView style={styles.hero}>
             <View style={styles.titleRow}>
               <Text style={styles.brandMark}>ReptraK</Text>
             </View>
@@ -303,108 +275,109 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
                   ? 'Master one main habit and keep momentum'
                   : 'Choose a cadence you can sustain'}
             </Text>
-          </View>
+          </FadeInView>
 
           {step === 1 && (
-            <View style={styles.card}>
-              <View pointerEvents="none" style={styles.cardGloss} />
-              <Text style={styles.stepTitle}>Let&apos;s set up your account</Text>
-              <Text style={styles.stepHint}>Start with your display name.</Text>
-              <Text style={styles.label}>What&apos;s your name?</Text>
-              <View style={styles.inputContainer}>
-                <View pointerEvents="none" style={styles.inputGloss} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Type your name..."
-                  placeholderTextColor="rgba(255, 255, 255, 0.3)"
-                  value={nameInput}
-                  onChangeText={setNameInput}
-                />
-              </View>
-              <GlassButton title="Continue" onPress={handleSaveName} style={styles.buttonSpacing} />
-            </View>
+            <FadeInView delay={80}>
+              <GlassSurface style={styles.card} radius={24} fillColor={glass.colors.panelDeep}>
+                <Text style={styles.stepTitle}>Let&apos;s set up your account</Text>
+                <Text style={styles.stepHint}>Start with your display name.</Text>
+                <Text style={styles.label}>What&apos;s your name?</Text>
+                <GlassSurface style={styles.inputContainer} radius={16} fillColor={glass.colors.panel}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Type your name..."
+                    placeholderTextColor="rgba(255, 255, 255, 0.3)"
+                    value={nameInput}
+                    onChangeText={setNameInput}
+                  />
+                </GlassSurface>
+                <GlassButton title="Continue" onPress={handleSaveName} style={styles.buttonSpacing} />
+              </GlassSurface>
+            </FadeInView>
           )}
 
           {step === 2 && (
-            <View style={styles.card}>
-              <View pointerEvents="none" style={styles.cardGloss} />
-              <Text style={styles.stepTitle}>Choose your focus</Text>
-              <Text style={styles.stepHint}>This becomes your primary mastery track.</Text>
-              <Text style={styles.label}>Popular habits</Text>
-              <View style={styles.optionContainer}>
-                {HABIT_CHOICES.map((habit) => (
-                  <TouchableOpacity
-                    key={habit}
-                    style={[
-                      styles.optionButton,
-                      selectedHabit === habit && styles.optionButtonActive
-                    ]}
-                    onPress={() => {
-                      setSelectedHabit(habit);
-                      setHabitInput('');
-                    }}
-                  >
-                    <Text
+            <FadeInView delay={80}>
+              <GlassSurface style={styles.card} radius={24} fillColor={glass.colors.panelDeep}>
+                <Text style={styles.stepTitle}>Choose your focus</Text>
+                <Text style={styles.stepHint}>This becomes your primary mastery track.</Text>
+                <Text style={styles.label}>Popular habits</Text>
+                <View style={styles.optionContainer}>
+                  {HABIT_CHOICES.map((habit) => (
+                    <TouchableOpacity
+                      key={habit}
                       style={[
-                        styles.optionText,
-                        selectedHabit === habit && styles.optionTextActive
+                        styles.optionButton,
+                        selectedHabit === habit && styles.optionButtonActive
                       ]}
+                      onPress={() => {
+                        setSelectedHabit(habit);
+                        setHabitInput('');
+                      }}
                     >
-                      {habit}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <Text style={styles.label}>Or custom habit</Text>
-              <View style={styles.inputContainer}>
-                <View pointerEvents="none" style={styles.inputGloss} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Custom habit..."
-                  placeholderTextColor="rgba(255, 255, 255, 0.3)"
-                  value={habitInput}
-                  onChangeText={(text) => {
-                    setHabitInput(text);
-                    if (text) setSelectedHabit(text);
-                  }}
-                />
-              </View>
-              <GlassButton title="Continue" onPress={handleSaveHabit} style={styles.buttonSpacing} />
-            </View>
+                      <Text
+                        style={[
+                          styles.optionText,
+                          selectedHabit === habit && styles.optionTextActive
+                        ]}
+                      >
+                        {habit}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <Text style={styles.label}>Or custom habit</Text>
+                <GlassSurface style={styles.inputContainer} radius={16} fillColor={glass.colors.panel}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Custom habit..."
+                    placeholderTextColor="rgba(255, 255, 255, 0.3)"
+                    value={habitInput}
+                    onChangeText={(text) => {
+                      setHabitInput(text);
+                      if (text) setSelectedHabit(text);
+                    }}
+                  />
+                </GlassSurface>
+                <GlassButton title="Continue" onPress={handleSaveHabit} style={styles.buttonSpacing} />
+              </GlassSurface>
+            </FadeInView>
           )}
 
           {step === 3 && (
-            <View style={styles.card}>
-              <View pointerEvents="none" style={styles.cardGloss} />
-              <Text style={styles.stepTitle}>Set weekly target</Text>
-              <Text style={styles.stepHint}>Adjust anytime in settings later.</Text>
-              <Text style={styles.label}>How many sessions per week?</Text>
-              <View style={styles.optionContainer}>
-                {FREQUENCY_OPTIONS.map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.optionButton,
-                      selectedFrequency === option.value && styles.optionButtonActive
-                    ]}
-                    onPress={() => {
-                      setSelectedFrequency(option.value);
-                      setFrequencyInput('');
-                    }}
-                  >
-                    <Text
+            <FadeInView delay={80}>
+              <GlassSurface style={styles.card} radius={24} fillColor={glass.colors.panelDeep}>
+                <Text style={styles.stepTitle}>Set weekly target</Text>
+                <Text style={styles.stepHint}>Adjust anytime in settings later.</Text>
+                <Text style={styles.label}>How many sessions per week?</Text>
+                <View style={styles.optionContainer}>
+                  {FREQUENCY_OPTIONS.map((option) => (
+                    <TouchableOpacity
+                      key={option.value}
                       style={[
-                        styles.optionText,
-                        selectedFrequency === option.value && styles.optionTextActive
+                        styles.optionButton,
+                        selectedFrequency === option.value && styles.optionButtonActive
                       ]}
+                      onPress={() => {
+                        setSelectedFrequency(option.value);
+                        setFrequencyInput('');
+                      }}
                     >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <GlassButton title="Start Tracking" onPress={handleSaveFrequency} style={styles.buttonSpacing} />
-            </View>
+                      <Text
+                        style={[
+                          styles.optionText,
+                          selectedFrequency === option.value && styles.optionTextActive
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <GlassButton title="Start Tracking" onPress={handleSaveFrequency} style={styles.buttonSpacing} />
+              </GlassSurface>
+            </FadeInView>
           )}
           <View style={styles.footerSpacing} />
         </View>

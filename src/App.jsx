@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { loadUser, persistUser, syncDerivedState, isOnboarded } from './lib/reptrak';
 import DashboardScreen from './screens/DashboardScreen';
 import CalendarScreen from './screens/CalendarScreen';
@@ -68,9 +70,9 @@ export default function App() {
           tabBarInactiveTintColor: 'rgba(230, 241, 255, 0.55)',
           tabBarLabelStyle: {
             fontSize: 11,
-            fontWeight: '700',
+            fontWeight: '800',
             letterSpacing: 0.3,
-            paddingBottom: 4
+            paddingBottom: 2
           },
           tabBarItemStyle: {
             paddingVertical: 6,
@@ -79,19 +81,55 @@ export default function App() {
           },
           tabBarStyle: {
             position: 'absolute',
-            left: 12,
-            right: 12,
-            bottom: 12,
+            left: 14,
+            right: 14,
+            bottom: 18,
             borderRadius: 999,
-            height: 72,
-            paddingBottom: 8,
-            paddingTop: 8,
-            backgroundColor: `${theme.bgElevated}EE`,
-            borderTopColor: glass.colors.borderSoft,
-            borderTopWidth: 1
+            height: 78,
+            paddingBottom: 10,
+            paddingTop: 10,
+            backgroundColor: 'transparent',
+            borderTopWidth: 0,
+            elevation: 0
           },
           tabBarActiveBackgroundColor: theme.glow,
           tabBarInactiveBackgroundColor: 'rgba(255,255,255,0.05)',
+          tabBarBackground: () => (
+            <View style={{ flex: 1, borderRadius: 999, overflow: 'hidden' }}>
+              <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFillObject} />
+              <LinearGradient
+                colors={['rgba(233, 245, 255, 0.16)', 'rgba(90, 127, 201, 0.12)', 'rgba(18, 22, 52, 0.34)']}
+                locations={[0, 0.42, 1]}
+                style={StyleSheet.absoluteFillObject}
+              />
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: 2,
+                  right: 2,
+                  top: 2,
+                  height: '52%',
+                  borderTopLeftRadius: 999,
+                  borderTopRightRadius: 999,
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)'
+                }}
+              />
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: 2,
+                  right: 2,
+                  top: 2,
+                  bottom: 2,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: glass.colors.borderInner
+                }}
+              />
+            </View>
+          ),
           headerStyle: {
             backgroundColor: `${theme.bgElevated}F0`,
             borderBottomColor: glass.colors.borderSoft,
