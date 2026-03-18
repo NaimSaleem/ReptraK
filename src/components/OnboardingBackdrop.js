@@ -1,7 +1,20 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-const ICONS = ['⚽', '🏀', '🎾', '🏓', '🏃', '🏋️', '🚴', '🥋', '⛳'];
+const AnimatedFA = Animated.createAnimatedComponent(FontAwesome5);
+
+const ICONS = [
+  'book-reader',
+  'running',
+  'dumbbell',
+  'brain',
+  'clock',
+  'calendar-check',
+  'seedling',
+  'bullseye',
+  'chart-line'
+];
 
 const styles = StyleSheet.create({
   layer: {
@@ -9,22 +22,32 @@ const styles = StyleSheet.create({
     pointerEvents: 'none'
   },
   item: {
-    position: 'absolute'
+    position: 'absolute',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  emoji: {
-    color: 'rgba(225, 247, 255, 0.34)'
+  iconShell: {
+    width: 32,
+    height: 32,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 225, 255, 0.2)',
+    backgroundColor: 'rgba(140, 190, 240, 0.06)',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   orb: {
     position: 'absolute',
-    width: 18,
-    height: 18,
+    width: 14,
+    height: 14,
     borderRadius: 999,
-    left: 5,
-    top: 5,
+    left: 9,
+    top: 9,
     backgroundColor: 'rgba(184, 242, 255, 0.9)',
     shadowColor: '#89e7ff',
-    shadowOpacity: 0.35,
-    shadowRadius: 12
+    shadowOpacity: 0.34,
+    shadowRadius: 10
   }
 });
 
@@ -60,8 +83,13 @@ function FloatingItem({ item }) {
   });
 
   const orbOpacity = t.interpolate({
-    inputRange: [0, 0.4, 0.65, 1],
-    outputRange: [0, 0, 0.48, 0]
+    inputRange: [0, 0.35, 0.62, 1],
+    outputRange: [0, 0, 0.58, 0]
+  });
+
+  const iconOpacity = t.interpolate({
+    inputRange: [0, 0.2, 0.85, 1],
+    outputRange: [0.24, 0.42, 0.2, 0]
   });
 
   return (
@@ -75,25 +103,34 @@ function FloatingItem({ item }) {
         }
       ]}
     >
-      <Animated.Text style={[styles.emoji, { fontSize: item.size, opacity: emojiOpacity }]}>
-        {item.icon}
-      </Animated.Text>
+      <View style={styles.iconShell}>
+        <AnimatedFA
+          name={item.icon}
+          size={item.size}
+          solid
+          style={{ opacity: Animated.multiply(emojiOpacity, iconOpacity) }}
+          color={item.color}
+        />
+      </View>
       <Animated.View style={[styles.orb, { opacity: orbOpacity }]} />
     </Animated.View>
   );
 }
 
-export function OnboardingBackdrop() {
+export function OnboardingBackdrop({ theme }) {
+  const iconColor = theme?.accentStrong || 'rgba(191, 238, 255, 0.78)';
+
   const items = useMemo(() => (
-    new Array(20).fill(null).map((_, idx) => ({
+    new Array(18).fill(null).map((_, idx) => ({
       icon: ICONS[idx % ICONS.length],
-      left: `${4 + ((idx * 13) % 86)}%`,
-      top: `${62 + ((idx * 7) % 30)}%`,
-      size: 20 + (idx % 4) * 4,
-      duration: 3800 + (idx % 6) * 420,
-      travel: 260 + (idx % 8) * 26
+      left: `${6 + ((idx * 12) % 84)}%`,
+      top: `${58 + ((idx * 9) % 36)}%`,
+      size: 14 + (idx % 3) * 2,
+      duration: 2600 + (idx % 5) * 280,
+      travel: 210 + (idx % 7) * 24,
+      color: iconColor
     }))
-  ), []);
+  ), [iconColor]);
 
   return (
     <View style={styles.layer}>
