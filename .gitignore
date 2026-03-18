@@ -4,3 +4,4 @@ dist/
 coverage/
 .sass-cache/
 npm-debug.log*
+config.codekit3

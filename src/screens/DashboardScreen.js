@@ -1,34 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
-  TouchableOpacity
+  ScrollView
 } from 'react-native';
-import { persistUser, syncDerivedState, getDayPercent, getZone, getZoneConfig, getCoachContent, getGreeting, getCompletedActivityCount } from '../lib/reptrak';
+import { getDayPercent, getZoneConfig, getCoachContent, getGreeting, getCompletedActivityCount } from '../lib/reptrak';
 import { ActivityRow } from '../components/ActivityRow';
+import { AmbientGlow } from '../components/AmbientGlow';
 import { GlassButton } from '../components/GlassButton';
+import { glass } from '../theme/glass';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a1220'
+    backgroundColor: '#1d1a46'
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingVertical: 12
+    paddingVertical: 14
   },
   greeting: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontWeight: '800',
+    color: glass.colors.textMain,
     marginBottom: 8
   },
   displayName: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: glass.colors.textSoft,
     marginBottom: 20
   },
   statGrid: {
@@ -38,79 +39,67 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    backgroundColor: glass.colors.panel,
+    borderRadius: 18,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)'
+    borderColor: glass.colors.borderSoft,
+    ...glass.shadow.soft
   },
   statLabel: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: glass.colors.textSoft,
     marginBottom: 4,
     fontWeight: '500'
   },
   statValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff'
+    color: glass.colors.textMain
   },
   coachSection: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    borderRadius: 22,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    marginBottom: 20
+    marginBottom: 20,
+    ...glass.shadow.soft
   },
   coachHeading: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: glass.colors.textMain,
     marginBottom: 4
   },
   coachKicker: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: glass.colors.textSoft,
     marginBottom: 8,
     fontWeight: '500'
   },
   coachCopy: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(237, 246, 255, 0.82)',
     lineHeight: 20
   },
   activitiesTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: glass.colors.textMain,
     marginBottom: 12
   },
   quickAddButton: {
-    backgroundColor: 'rgba(136, 239, 255, 0.2)',
-    borderWidth: 2,
-    borderColor: 'rgba(136, 239, 255, 0.5)',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  quickAddText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#88efff'
+    marginBottom: 18
   }
 });
 
-export default function DashboardScreen({ user, setUser }) {
+export default function DashboardScreen({ user, onUserChange }) {
   const dayPercent = getDayPercent(user);
-  const zoneKey = getZone(dayPercent);
   const zone = getZoneConfig(dayPercent);
   const coach = getCoachContent(user, dayPercent);
   const completedActivities = getCompletedActivityCount(user);
 
   const handleActivityChange = (activityId, field, value) => {
-    const updatedUser = {
+    onUserChange({
       ...user,
       activities: user.activities.map((activity) => {
         if (activity.id === activityId) {
@@ -121,14 +110,11 @@ export default function DashboardScreen({ user, setUser }) {
         }
         return activity;
       })
-    };
-    const syncedUser = syncDerivedState(updatedUser);
-    setUser(syncedUser);
-    persistUser(syncedUser);
+    });
   };
 
   const handleQuickAdd = () => {
-    const updatedUser = {
+    onUserChange({
       ...user,
       activities: user.activities.map((activity, index) => {
         if (index === 0) {
@@ -139,15 +125,13 @@ export default function DashboardScreen({ user, setUser }) {
         }
         return activity;
       })
-    };
-    const syncedUser = syncDerivedState(updatedUser);
-    setUser(syncedUser);
-    persistUser(syncedUser);
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollContent}>
+      <AmbientGlow />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.greeting}>{getGreeting()}, {user.name}</Text>
         <Text style={styles.displayName}>{dayPercent}% of your goals complete today</Text>
 
@@ -179,9 +163,11 @@ export default function DashboardScreen({ user, setUser }) {
 
         <Text style={styles.activitiesTitle}>Your Habits</Text>
 
-        <TouchableOpacity style={styles.quickAddButton} onPress={handleQuickAdd}>
-          <Text style={styles.quickAddText}>+ Quick Add {user.activities[0]?.name}</Text>
-        </TouchableOpacity>
+        <GlassButton
+          title={`+ Quick Add ${user.activities[0]?.name || 'Habit'}`}
+          onPress={handleQuickAdd}
+          style={styles.quickAddButton}
+        />
 
         {user.activities.map((activity) => (
           <ActivityRow

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, ActivityIndicator } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { loadUser, syncDerivedState } from './lib/reptrak';
+import { View, ActivityIndicator } from 'react-native';
+import { loadUser, persistUser, syncDerivedState, isOnboarded } from './lib/reptrak';
 import DashboardScreen from './screens/DashboardScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import PremiumScreen from './screens/PremiumScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
+import { glass } from './theme/glass';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +31,19 @@ export default function App() {
     initializeApp();
   }, []);
 
+  const updateUser = useCallback((nextUserOrUpdater, options = {}) => {
+    const { sync = true } = options;
+
+    setUser((previousUser) => {
+      const nextUser = typeof nextUserOrUpdater === 'function'
+        ? nextUserOrUpdater(previousUser)
+        : nextUserOrUpdater;
+      const finalUser = sync ? syncDerivedState(nextUser) : nextUser;
+      persistUser(finalUser);
+      return finalUser;
+    });
+  }, []);
+
   if (isLoading || !user) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a1220' }}>
@@ -39,52 +52,49 @@ export default function App() {
     );
   }
 
-  const isOnboarded = Boolean(user.name && user.habit && user.frequency);
-
-  if (!isOnboarded) {
-    return <OnboardingScreen user={user} setUser={setUser} />;
+  if (!isOnboarded(user)) {
+    return <OnboardingScreen user={user} onUserChange={updateUser} />;
   }
 
   return (
     <NavigationContainer>
       <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-            if (route.name === 'Home') iconName = 'home';
-            else if (route.name === 'Calendar') iconName = 'calendar-today';
-            else if (route.name === 'Profile') iconName = 'person';
-            else if (route.name === 'Premium') iconName = 'star';
-
-            return <MaterialIcons name={iconName} size={size} color={color} />;
+        screenOptions={{
+          tabBarActiveTintColor: glass.colors.accentStrong,
+          tabBarInactiveTintColor: 'rgba(230, 241, 255, 0.55)',
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
+            paddingBottom: 4
           },
-          tabBarActiveTintColor: '#88efff',
-          tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.5)',
+          tabBarItemStyle: {
+            paddingVertical: 6
+          },
           tabBarStyle: {
-            backgroundColor: 'rgba(10, 18, 32, 0.95)',
-            borderTopColor: 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: 'rgba(35, 33, 77, 0.92)',
+            borderTopColor: glass.colors.borderSoft,
             borderTopWidth: 1
           },
           headerStyle: {
-            backgroundColor: 'rgba(10, 18, 32, 0.95)',
-            borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: 'rgba(35, 33, 77, 0.94)',
+            borderBottomColor: glass.colors.borderSoft,
             borderBottomWidth: 1
           },
-          headerTintColor: '#ffffff',
-          headerTitleStyle: { color: '#ffffff' }
-        })}
+          headerTintColor: glass.colors.textMain,
+          headerTitleStyle: { color: glass.colors.textMain }
+        }}
       >
         <Tab.Screen
           name="Home"
           options={{ title: 'Dashboard' }}
         >
-          {() => <DashboardScreen user={user} setUser={setUser} />}
+          {() => <DashboardScreen user={user} onUserChange={updateUser} />}
         </Tab.Screen>
         <Tab.Screen
           name="Calendar"
           options={{ title: 'Calendar' }}
         >
-          {() => <CalendarScreen user={user} setUser={setUser} />}
+          {() => <CalendarScreen user={user} onUserChange={updateUser} />}
         </Tab.Screen>
         <Tab.Screen
           name="Profile"
@@ -96,7 +106,7 @@ export default function App() {
           name="Premium"
           options={{ title: 'Premium' }}
         >
-          {() => <PremiumScreen user={user} setUser={setUser} />}
+          {() => <PremiumScreen user={user} onUserChange={updateUser} />}
         </Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>

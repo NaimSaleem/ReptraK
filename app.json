@@ -11,9 +11,6 @@
     "android": {
       "package": "com.reptrak.app"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "scheme": "reptrak"
   }
 }

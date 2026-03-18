@@ -5,11 +5,8 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
   Alert
 } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { persistUser, syncDerivedState } from '../lib/reptrak';
 import { GlassButton } from '../components/GlassButton';
 
 const styles = StyleSheet.create({
@@ -148,7 +145,7 @@ const FEATURES = [
   }
 ];
 
-export default function PremiumScreen({ user, setUser }) {
+export default function PremiumScreen({ user, onUserChange }) {
   const handleSubscribe = () => {
     Alert.alert(
       'Premium Feature',
@@ -162,9 +159,7 @@ export default function PremiumScreen({ user, setUser }) {
         {
           text: 'Activate Premium',
           onPress: () => {
-            const updatedUser = { ...user, premium: true };
-            setUser(updatedUser);
-            persistUser(updatedUser);
+            onUserChange({ ...user, premium: true });
             Alert.alert('Success', 'Premium is now active!');
           }
         }

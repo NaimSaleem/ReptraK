@@ -1,17 +1,44 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { ZONES } from '../lib/reptrak';
+import { glass } from '../theme/glass';
 
 const styles = StyleSheet.create({
   badge: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 16,
+    borderRadius: 999,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: glass.colors.borderSoft
   },
   badgeText: {
     fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center'
+  },
+  liquidButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    alignItems: 'center'
+  },
+  liquidFill: {
+    width: '100%',
+    position: 'absolute',
+    bottom: 0
+  },
+  liquidLabel: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10
+  },
+  liquidText: {
+    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center'
   }
@@ -83,32 +110,3 @@ export function LiquidButton({ percent, onPress }) {
     </View>
   );
 }
-
-const liquidStyles = StyleSheet.create({
-  liquidButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-    alignItems: 'center'
-  },
-  liquidFill: {
-    width: '100%',
-    position: 'absolute',
-    bottom: 0
-  },
-  liquidLabel: {
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10
-  },
-  liquidText: {
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center'
-  }
-});
-
-Object.assign(styles, liquidStyles);

@@ -9,44 +9,46 @@ import {
   TouchableOpacity,
   Alert
 } from 'react-native';
-import { persistUser, syncDerivedState, isOnboarded } from '../lib/reptrak';
 import { GlassButton } from '../components/GlassButton';
+import { AmbientGlow } from '../components/AmbientGlow';
+import { glass } from '../theme/glass';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a1220',
+    backgroundColor: '#1d1a46',
     paddingHorizontal: 16
   },
   header: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontWeight: '800',
+    color: glass.colors.textMain,
     marginVertical: 24,
     textAlign: 'center'
   },
   subheader: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: glass.colors.textSoft,
     marginBottom: 16,
     textAlign: 'center'
   },
   inputContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    backgroundColor: glass.colors.panel,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: glass.colors.borderSoft,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginVertical: 12
+    marginVertical: 12,
+    ...glass.shadow.soft
   },
   input: {
-    color: '#ffffff',
+    color: glass.colors.textMain,
     fontSize: 16,
     fontWeight: '500'
   },
   label: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: glass.colors.textSoft,
     fontSize: 12,
     fontWeight: '500',
     marginTop: 16,
@@ -63,24 +65,25 @@ const styles = StyleSheet.create({
     minWidth: '45%',
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 14,
+    backgroundColor: glass.colors.panel,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: glass.colors.borderSoft,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    ...glass.shadow.soft
   },
   optionButtonActive: {
-    backgroundColor: 'rgba(136, 239, 255, 0.2)',
-    borderColor: 'rgba(136, 239, 255, 0.5)'
+    backgroundColor: 'rgba(201, 252, 255, 0.34)',
+    borderColor: 'rgba(156, 241, 255, 0.52)'
   },
   optionText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: glass.colors.textSoft,
     fontSize: 12,
     fontWeight: '500'
   },
   optionTextActive: {
-    color: '#88efff',
+    color: '#13203e',
     fontWeight: '600'
   }
 });
@@ -104,7 +107,7 @@ const FREQUENCY_OPTIONS = [
   { label: '7x', value: '7' }
 ];
 
-export default function OnboardingScreen({ user, setUser }) {
+export default function OnboardingScreen({ user, onUserChange }) {
   const [step, setStep] = useState(1);
   const [nameInput, setNameInput] = useState(user.name || '');
   const [habitInput, setHabitInput] = useState(user.habit || '');
@@ -121,8 +124,7 @@ export default function OnboardingScreen({ user, setUser }) {
       ...user,
       name: nameInput.trim()
     };
-    setUser(syncDerivedState(updatedUser));
-    persistUser(updatedUser);
+    onUserChange(updatedUser);
     setStep(2);
   };
 
@@ -140,8 +142,7 @@ export default function OnboardingScreen({ user, setUser }) {
         ...user.activities.slice(1)
       ]
     };
-    setUser(syncDerivedState(updatedUser));
-    persistUser(updatedUser);
+    onUserChange(updatedUser);
     setStep(3);
   };
 
@@ -159,12 +160,12 @@ export default function OnboardingScreen({ user, setUser }) {
         ...user.activities.slice(1)
       ]
     };
-    setUser(syncDerivedState(updatedUser));
-    persistUser(updatedUser);
+    onUserChange(updatedUser);
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <AmbientGlow />
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         {step === 1 && (
           <>

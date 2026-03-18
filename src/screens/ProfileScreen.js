@@ -6,7 +6,7 @@ import {
   SafeAreaView,
   ScrollView
 } from 'react-native';
-import { getDayPercent, getZone, getZoneConfig, getProfileContent, getCompletedActivityCount } from '../lib/reptrak';
+import { getDayPercent, getProfileContent, getCompletedActivityCount } from '../lib/reptrak';
 import { ActivityRow } from '../components/ActivityRow';
 
 const styles = StyleSheet.create({
@@ -140,6 +140,7 @@ export default function ProfileScreen({ user }) {
               activity={activity}
               onCountChange={() => {}}
               onTimeChange={() => {}}
+              editable={false}
               showZone={true}
             />
           </View>

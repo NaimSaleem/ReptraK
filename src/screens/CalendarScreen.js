@@ -5,10 +5,9 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
-  FlatList
+  TouchableOpacity
 } from 'react-native';
-import { getZone, getZoneConfig, DAY_LABELS, getDayPercent, persistUser, syncDerivedState } from '../lib/reptrak';
+import { getZoneConfig, DAY_LABELS } from '../lib/reptrak';
 
 const styles = StyleSheet.create({
   container: {
@@ -77,26 +76,22 @@ const styles = StyleSheet.create({
   }
 });
 
-export default function CalendarScreen({ user, setUser }) {
+export default function CalendarScreen({ user, onUserChange }) {
   const [viewMode, setViewMode] = useState(user.calendarView || 'month');
 
   const handleCellPress = (dayIndex) => {
-    const updatedUser = {
+    onUserChange({
       ...user,
       currentDay: dayIndex,
       calendarView: viewMode
-    };
-    const syncedUser = syncDerivedState(updatedUser);
-    setUser(syncedUser);
-    persistUser(syncedUser);
+    });
   };
 
   const handleViewChange = (newView) => {
-    const updatedUser = {
+    onUserChange({
       ...user,
       calendarView: newView
-    };
-    setUser(updatedUser);
+    });
     setViewMode(newView);
   };
 
@@ -156,7 +151,6 @@ export default function CalendarScreen({ user, setUser }) {
                 ? selectedDayIndex
                 : index;
 
-            const zone = getZone(percentValue);
             const zoneConfig = getZoneConfig(percentValue);
             const isSelected = actualIndex === selectedDayIndex;
 
