@@ -1,8 +1,16 @@
-*.aar
-*.apk
-*.mapping
-*.so
-build/
-.gradle/
-.idea/
+# OSX
+#
 .DS_Store
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+
+# Bundle artifacts
+*.jsbundle
