@@ -1,21 +1,42 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
+  Alert,
+  FlatList,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions
 } from 'react-native';
-import { DAY_LABELS, getZoneConfig, getLogDayIndex, isVoidDay, toggleVoidDay } from '../lib/reptrak';
+import {
+  DAY_LABELS,
+  DAYS_IN_MONTH_VIEW,
+  getAvailableMonthKeys,
+  getCurrentMonthKey,
+  getLogDayIndex,
+  getMonthLabel,
+  getMonthRecord,
+  getSelectedMonthKey,
+  getZoneConfig,
+  isFutureMonthKey,
+  isVoidDay,
+  selectMonth,
+  toggleVoidDay
+} from '../lib/reptrak';
 import { AmbientGlow } from '../components/AmbientGlow';
+import { AppIcon } from '../components/AppIcon';
 import { FadeInView } from '../components/FadeInView';
 import { GlassButton } from '../components/GlassButton';
 import { GlassSurface } from '../components/GlassSurface';
+import { ReptraKMark } from '../components/BrandLogo';
+import { ScreenTransitionView } from '../components/ScreenTransitionView';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
 
 const CELL_GAP = 8;
+const WEEK_COLUMNS = 4;
 
 const styles = StyleSheet.create({
   container: {
@@ -25,20 +46,23 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: layout.appHorizontalPadding,
     paddingVertical: layout.appVerticalPadding,
-    paddingBottom: 136
+    paddingBottom: 152
   },
-  topRow: {
-    marginBottom: 14
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16
   },
-  title: {
+  headerTitle: {
     fontSize: 30,
     lineHeight: 34,
     letterSpacing: -0.9,
     fontWeight: '800',
     color: glass.colors.textMain
   },
-  subtitle: {
-    marginTop: 4,
+  headerSubtitle: {
+    marginTop: 2,
     fontSize: 14,
     lineHeight: 20,
     color: glass.colors.textSoft
@@ -48,28 +72,28 @@ const styles = StyleSheet.create({
     marginBottom: layout.sectionGap,
     gap: 14
   },
-  cardKickerRow: {
+  kickerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 10
   },
-  cardKicker: {
+  kicker: {
     fontSize: 11,
-    letterSpacing: 1.6,
+    letterSpacing: 1.5,
     fontWeight: '800',
     color: glass.colors.textSoft
   },
-  cardHeading: {
-    fontSize: 31,
-    lineHeight: 35,
+  heroTitle: {
+    fontSize: 30,
+    lineHeight: 34,
     letterSpacing: -1,
     fontWeight: '800',
     color: glass.colors.textMain
   },
   heroCopy: {
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 14,
+    lineHeight: 21,
     color: glass.colors.textSoft
   },
   summaryRow: {
@@ -78,27 +102,62 @@ const styles = StyleSheet.create({
   },
   summaryPill: {
     flex: 1,
+    minHeight: 76,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: glass.colors.borderSoft,
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
     paddingHorizontal: 12,
-    paddingVertical: 12
+    paddingVertical: 12,
+    justifyContent: 'space-between'
   },
   summaryLabel: {
     fontSize: 10,
     letterSpacing: 0.8,
     fontWeight: '800',
-    color: glass.colors.textSoft,
-    marginBottom: 4
+    color: glass.colors.textSoft
   },
   summaryValue: {
-    fontSize: 18,
-    lineHeight: 22,
+    fontSize: 17,
+    lineHeight: 21,
     fontWeight: '800',
     color: glass.colors.textMain
   },
-  viewToggle: {
+  monthRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  monthButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: glass.colors.borderSoft,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  monthLabelWrap: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 12
+  },
+  monthLabel: {
+    fontSize: 18,
+    lineHeight: 22,
+    fontWeight: '800',
+    color: glass.colors.textMain,
+    textAlign: 'center'
+  },
+  monthHint: {
+    marginTop: 2,
+    fontSize: 11,
+    lineHeight: 15,
+    color: glass.colors.textSoft,
+    textAlign: 'center'
+  },
+  toggleRow: {
     flexDirection: 'row',
     gap: 10
   },
@@ -110,22 +169,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: glass.colors.borderSoft,
     alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden'
+    justifyContent: 'center'
   },
   toggleButtonActive: {
-    backgroundColor: glass.colors.buttonPrimaryBottom,
-    borderColor: 'rgba(156, 241, 255, 0.58)'
-  },
-  toggleGloss: {
-    position: 'absolute',
-    left: 1,
-    right: 1,
-    top: 1,
-    height: '54%',
-    borderTopLeftRadius: 999,
-    borderTopRightRadius: 999,
-    backgroundColor: glass.colors.buttonSecondaryTop
+    backgroundColor: 'rgba(111, 217, 255, 0.24)',
+    borderColor: 'rgba(169, 237, 255, 0.48)'
   },
   toggleText: {
     fontSize: 15,
@@ -133,115 +181,150 @@ const styles = StyleSheet.create({
     color: glass.colors.textSoft
   },
   toggleTextActive: {
-    color: '#13203e'
+    color: '#142447'
   },
-  mapCard: {
-    padding: layout.cardPadding
+  boardCard: {
+    padding: layout.cardPadding,
+    marginBottom: layout.sectionGap,
+    gap: 14
   },
-  mapHeader: {
-    marginBottom: 14
+  boardHeader: {
+    gap: 4
   },
-  mapHeading: {
-    fontSize: 18,
+  boardTitle: {
+    fontSize: 19,
+    lineHeight: 23,
     fontWeight: '800',
-    color: glass.colors.textMain,
-    marginBottom: 4
+    color: glass.colors.textMain
   },
-  mapHint: {
-    fontSize: 12,
-    lineHeight: 18,
+  boardHint: {
+    fontSize: 13,
+    lineHeight: 19,
     color: glass.colors.textSoft
-  },
-  weekHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8
-  },
-  weekHeaderCell: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  weekHeaderText: {
-    fontSize: 10,
-    letterSpacing: 0.8,
-    color: glass.colors.textSoft,
-    fontWeight: '800'
   },
   monthGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginHorizontal: -(CELL_GAP / 2)
   },
-  monthCell: {
-    width: '14.2857%',
+  monthCellWrap: {
+    width: '20%',
     paddingHorizontal: CELL_GAP / 2,
     paddingVertical: CELL_GAP / 2
   },
-  monthCellInner: {
-    minHeight: 58,
-    borderRadius: 16,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    justifyContent: 'space-between',
-    borderWidth: 1
-  },
-  weekGrid: {
-    flexDirection: 'row',
-    gap: CELL_GAP
-  },
-  weekCell: {
-    flex: 1,
-    minHeight: 90,
+  monthCell: {
+    minHeight: 74,
     borderRadius: 18,
-    paddingHorizontal: 7,
+    paddingHorizontal: 10,
     paddingVertical: 10,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1
-  },
-  dayCell: {
-    width: '100%',
-    minHeight: 180,
-    borderRadius: 22,
-    paddingHorizontal: 18,
-    paddingVertical: 20,
     borderWidth: 1,
     justifyContent: 'space-between'
   },
-  cellDay: {
-    fontSize: 12,
-    lineHeight: 15,
-    fontWeight: '800',
-    color: glass.colors.textSoft
-  },
-  cellPercent: {
-    fontSize: 18,
-    lineHeight: 22,
-    fontWeight: '800',
-    color: glass.colors.textMain
-  },
-  cellPercentLarge: {
-    fontSize: 44,
-    lineHeight: 48,
-    letterSpacing: -1.5,
-    fontWeight: '800',
-    color: glass.colors.textMain
-  },
-  cellDetail: {
+  monthCellDay: {
     fontSize: 11,
-    lineHeight: 15,
+    lineHeight: 14,
+    fontWeight: '800',
     color: glass.colors.textSoft
   },
-  cellVoid: {
-    fontSize: 10,
-    letterSpacing: 0.8,
+  monthCellValue: {
+    fontSize: 16,
+    lineHeight: 19,
     fontWeight: '800',
-    color: 'rgba(234, 239, 247, 0.68)'
+    color: glass.colors.textMain
+  },
+  weekCarousel: {
+    marginHorizontal: -layout.cardPadding
+  },
+  weekSlide: {
+    paddingHorizontal: layout.cardPadding
+  },
+  weekSlideGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: CELL_GAP
+  },
+  weekDayCard: {
+    aspectRatio: 1,
+    borderRadius: 18,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    borderWidth: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  weekLabel: {
+    fontSize: 12,
+    lineHeight: 14,
+    fontWeight: '800',
+    color: glass.colors.textSoft,
+    textAlign: 'center'
+  },
+  weekPercent: {
+    fontSize: 17,
+    lineHeight: 20,
+    fontWeight: '800',
+    color: glass.colors.textMain,
+    textAlign: 'center'
+  },
+  weekMeta: {
+    fontSize: 10,
+    lineHeight: 13,
+    color: glass.colors.textSoft,
+    textAlign: 'center'
+  },
+  carouselDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8
+  },
+  carouselDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.2)'
+  },
+  carouselDotActive: {
+    width: 24,
+    backgroundColor: 'rgba(169, 237, 255, 0.9)'
+  },
+  dayCard: {
+    minHeight: 210,
+    borderRadius: 24,
+    paddingHorizontal: 22,
+    paddingVertical: 22,
+    borderWidth: 1,
+    justifyContent: 'space-between'
+  },
+  dayTitle: {
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: '800',
+    color: glass.colors.textSoft
+  },
+  dayHint: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 17,
+    color: glass.colors.textSoft
+  },
+  dayPercent: {
+    fontSize: 48,
+    lineHeight: 52,
+    letterSpacing: -1.6,
+    fontWeight: '800',
+    color: glass.colors.textMain
+  },
+  voidText: {
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.9,
+    fontWeight: '800',
+    color: 'rgba(240, 245, 252, 0.82)'
   },
   detailCard: {
-    marginTop: 14,
     padding: 18,
-    gap: 6
+    gap: 8
   },
   detailTitle: {
     fontSize: 23,
@@ -255,53 +338,109 @@ const styles = StyleSheet.create({
     color: glass.colors.textSoft
   },
   detailFoot: {
-    marginTop: 2,
     fontSize: 12,
     lineHeight: 18,
     color: glass.colors.textSoft
   }
 });
 
-function getCellState({ percent, zoneConfig, selected, voided }) {
+function getCellState({ zoneConfig, selected, voided, accentStrong }) {
   if (voided) {
     return {
       backgroundColor: glass.colors.voidFill,
-      borderColor: selected ? 'rgba(228, 236, 246, 0.76)' : glass.colors.voidEdge,
-      opacity: selected ? 1 : 0.82
+      borderColor: selected ? 'rgba(230, 238, 247, 0.78)' : glass.colors.voidEdge
     };
   }
 
   return {
-    backgroundColor: `${zoneConfig.color}${selected ? '2f' : '22'}`,
-    borderColor: selected ? zoneConfig.color : `${zoneConfig.color}55`,
-    opacity: selected ? 1 : 0.9
+    backgroundColor: selected ? `${zoneConfig.color}33` : `${zoneConfig.color}1d`,
+    borderColor: selected ? accentStrong || zoneConfig.color : `${zoneConfig.color}66`
   };
 }
 
+function getDetailCopy({ percent, isVoid, isFuture }) {
+  if (isVoid && isFuture) {
+    return 'This day is reserved as a future recovery day, so your showcase streak will stay honest when life gets busy!';
+  }
+
+  if (isVoid) {
+    return 'This day is washed into a soft grey, so travel or sick time never muddies your real progress!';
+  }
+
+  if (percent >= 100) {
+    return 'Boom! This one is fully sealed and glowing bright blue! That is a clean mastery closeout!';
+  }
+
+  if (percent > 75) {
+    return 'Awesome work! This day is already in the green and only needs a tiny extra push to fully close!';
+  }
+
+  if (percent >= 50) {
+    return 'Nice energy! You are over halfway there, and one more focused rep could really brighten the board!';
+  }
+
+  return 'Fresh start! One solid action here can flip the whole vibe of the day and get momentum rolling again!';
+}
+
 export default function CalendarScreen({ user, onUserChange, theme }) {
+  const weekListRef = useRef(null);
+  const { width } = useWindowDimensions();
   const viewMode = user.calendarView || 'month';
-  const monthLength = user.month.length || 28;
-  const selectedDayIndex = Math.min(Math.max(user.currentDay || 0, 0), monthLength - 1);
-  const selectedWeekday = DAY_LABELS[selectedDayIndex % 7];
-  const selectedPercent = user.month[selectedDayIndex] || 0;
+  const selectedMonthKey = getSelectedMonthKey(user);
+  const monthValues = getMonthRecord(user, selectedMonthKey);
+  const availableMonthKeys = useMemo(
+    () => getAvailableMonthKeys(user.accountCreatedAt),
+    [user.accountCreatedAt]
+  );
+  const selectedMonthIndex = Math.max(availableMonthKeys.indexOf(selectedMonthKey), 0);
+  const selectedDayIndex = Math.min(Math.max(user.currentDay || 0, 0), DAYS_IN_MONTH_VIEW - 1);
+  const selectedPercent = monthValues[selectedDayIndex] || 0;
   const selectedZone = getZoneConfig(selectedPercent);
-  const selectedIsVoid = isVoidDay(user, selectedDayIndex);
-  const weekStart = Math.floor(selectedDayIndex / 7) * 7;
-  const weekDays = user.month.slice(weekStart, weekStart + 7);
-  const greenDays = weekDays.filter((value) => value > 75).length;
+  const selectedIsVoid = isVoidDay(user, selectedDayIndex, selectedMonthKey);
+  const monthAverageBase = monthValues.filter((_, index) => !isVoidDay(user, index, selectedMonthKey));
+  const monthAverage = monthAverageBase.length
+    ? Math.round(monthAverageBase.reduce((sum, value) => sum + value, 0) / monthAverageBase.length)
+    : 0;
+  const greenDays = monthValues.filter((value, index) => !isVoidDay(user, index, selectedMonthKey) && value > 75).length;
+  const currentMonthKey = getCurrentMonthKey();
+  const viewingFuture = isFutureMonthKey(selectedMonthKey);
   const logDayIndex = getLogDayIndex(user);
-  const logWeekday = DAY_LABELS[logDayIndex % 7];
+  const weekSlides = useMemo(
+    () => Array.from({ length: Math.ceil(DAYS_IN_MONTH_VIEW / 7) }, (_, slideIndex) => (
+      Array.from({ length: 7 }, (_, itemIndex) => {
+        const dayIndex = (slideIndex * 7) + itemIndex;
+        if (dayIndex >= DAYS_IN_MONTH_VIEW) {
+          return null;
+        }
 
-  const mapHeading = viewMode === 'month'
-    ? 'Monthly map'
-    : viewMode === 'week'
-      ? 'Week at a glance'
-      : 'Focused day';
+        return {
+          dayIndex,
+          label: DAY_LABELS[itemIndex],
+          percent: monthValues[dayIndex] || 0,
+          isVoid: isVoidDay(user, dayIndex, selectedMonthKey)
+        };
+      })
+    )),
+    [monthValues, selectedMonthKey, user]
+  );
+  const selectedWeekSlide = Math.floor(selectedDayIndex / 7);
+  const slideWidth = Math.max(width - ((layout.appHorizontalPadding + layout.cardPadding) * 2), 260);
+  const weekGridWidth = slideWidth - (layout.cardPadding * 2);
+  const weekCellSize = Math.floor((weekGridWidth - (CELL_GAP * (WEEK_COLUMNS - 1))) / WEEK_COLUMNS);
 
-  const handleCellPress = (dayIndex) => {
+  useEffect(() => {
+    if (viewMode === 'week' && weekListRef.current) {
+      weekListRef.current.scrollToOffset({
+        animated: true,
+        offset: selectedWeekSlide * slideWidth
+      });
+    }
+  }, [selectedWeekSlide, slideWidth, viewMode]);
+
+  const handleDaySelect = (dayIndex) => {
     onUserChange({
       ...user,
-      currentDay: Math.min(Math.max(dayIndex, 0), monthLength - 1)
+      currentDay: dayIndex
     });
   };
 
@@ -312,124 +451,123 @@ export default function CalendarScreen({ user, onUserChange, theme }) {
     });
   };
 
-  const handleToggleVoidDay = () => {
-    onUserChange(toggleVoidDay(user, selectedDayIndex));
+  const handleShiftMonth = (delta) => {
+    const nextIndex = selectedMonthIndex + delta;
+    if (nextIndex < 0 || nextIndex >= availableMonthKeys.length) {
+      return;
+    }
+    onUserChange(selectMonth(user, availableMonthKeys[nextIndex]));
   };
 
-  const monthCells = useMemo(() => (
-    user.month.map((percentValue, index) => {
-      const zoneConfig = getZoneConfig(percentValue);
-      const selected = index === selectedDayIndex;
-      const voided = isVoidDay(user, index);
+  const commitVoidToggle = () => {
+    onUserChange(toggleVoidDay(user, selectedDayIndex, selectedMonthKey));
+  };
 
-      return (
-        <TouchableOpacity
-          key={`month-${index}`}
-          style={styles.monthCell}
-          onPress={() => handleCellPress(index)}
-        >
-          <View style={[styles.monthCellInner, getCellState({ percent: percentValue, zoneConfig, selected, voided })]}>
-            <Text style={styles.cellDay}>{index + 1}</Text>
-            {voided ? (
-              <Text style={styles.cellVoid}>VOID</Text>
-            ) : (
-              <Text style={styles.cellPercent}>{percentValue}%</Text>
-            )}
-          </View>
-        </TouchableOpacity>
+  const handleToggleVoidDay = () => {
+    if (!user.premium) {
+      Alert.alert('Premium feature!', 'Void days live in Premium so your streak rules stay intentional and protected!');
+      return;
+    }
+
+    if (viewingFuture && !selectedIsVoid) {
+      Alert.alert(
+        'Reserve a future void day?!',
+        'This will grey out the day ahead of time for travel, recovery, or a planned break. Want to lock it in?!',
+        [
+          { text: 'Not yet', style: 'cancel' },
+          { text: 'Reserve it!', onPress: commitVoidToggle }
+        ]
       );
-    })
-  ), [selectedDayIndex, user]);
+      return;
+    }
 
-  const weekCells = useMemo(() => (
-    DAY_LABELS.map((day, index) => {
-      const actualIndex = weekStart + index;
-      const percentValue = user.month[actualIndex] || 0;
-      const zoneConfig = getZoneConfig(percentValue);
-      const selected = actualIndex === selectedDayIndex;
-      const voided = isVoidDay(user, actualIndex);
+    commitVoidToggle();
+  };
 
-      return (
-        <TouchableOpacity
-          key={`week-${day}`}
-          style={{ flex: 1 }}
-          onPress={() => handleCellPress(actualIndex)}
-        >
-          <View style={[styles.weekCell, getCellState({ percent: percentValue, zoneConfig, selected, voided })]}>
-            <Text style={styles.cellDay}>{day}</Text>
-            {voided ? (
-              <Text style={styles.cellVoid}>VOID</Text>
-            ) : (
-              <Text style={styles.cellPercent}>{percentValue}%</Text>
-            )}
-            <Text style={styles.cellDetail}>{selected ? 'Selected' : 'Tap'}</Text>
-          </View>
-        </TouchableOpacity>
-      );
-    })
-  ), [selectedDayIndex, user, weekStart]);
+  const detailCopy = getDetailCopy({
+    percent: selectedPercent,
+    isVoid: selectedIsVoid,
+    isFuture: viewingFuture
+  });
 
-  const detailCopy = (() => {
-    if (selectedIsVoid) {
-      return 'This day is excluded from streaks, averages, and progress color states so you can protect the signal when travel or illness interrupts the rhythm.';
-    }
-    if (selectedPercent >= 100) {
-      return 'Bright blue closeout. Count goals and optional time goals are both locked in.';
-    }
-    if (selectedPercent > 75) {
-      return 'Green day. This is strong, reliable follow-through with only a small gap left to close.';
-    }
-    if (selectedPercent >= 50) {
-      return 'Yellow day. Momentum is real, but the system is still asking for a clean finish.';
-    }
-    return 'Red-orange day. The priority is one simple rep to re-establish consistency.';
-  })();
+  const selectedMonthLabel = getMonthLabel(selectedMonthKey);
+  const loggingMonthLabel = getMonthLabel(currentMonthKey);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
       <AmbientGlow theme={theme} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <FadeInView style={styles.topRow}>
-          <Text style={styles.title}>Calendar</Text>
-          <Text style={styles.subtitle}>Track month, week, and day progress without crowding the numbers.</Text>
+      <ScreenTransitionView axis="x">
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <FadeInView style={styles.header}>
+          <ReptraKMark width={36} height={34} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Calendar</Text>
+            <Text style={styles.headerSubtitle}>Friendly 30-day tracking, week slides, and day-by-day coaching!</Text>
+          </View>
         </FadeInView>
 
         <FadeInView delay={60}>
           <GlassSurface style={styles.heroCard} radius={glass.radius.xl} fillColor={glass.colors.panelStrong}>
-            <View style={styles.cardKickerRow}>
-              <Text style={styles.cardKicker}>BASIC TRACKING</Text>
-              <Text style={styles.cardKicker}>{selectedIsVoid ? 'VOID DAY' : 'FREE FEATURE'}</Text>
+            <View style={styles.kickerRow}>
+              <Text style={styles.kicker}>30-DAY BOARD</Text>
+              <Text style={styles.kicker}>{viewingFuture ? 'PLANNING AHEAD' : 'SHOWCASE READY'}</Text>
             </View>
-            <Text style={styles.cardHeading}>Completion map</Text>
+            <Text style={styles.heroTitle}>Keep the rhythm clear!</Text>
             <Text style={styles.heroCopy}>
-              Tap any day to inspect it, keep the visual rhythm clean, and move between views without stretching the data.
+              Browse every month from your start date, swipe through weekly slides, and tap any day for a clean focused readout!
             </Text>
 
             <View style={styles.summaryRow}>
               <View style={styles.summaryPill}>
-                <Text style={styles.summaryLabel}>Selected</Text>
-                <Text style={styles.summaryValue}>{selectedIsVoid ? `${selectedWeekday} · Void` : `${selectedWeekday} · ${selectedPercent}%`}</Text>
+                <Text style={styles.summaryLabel}>Selected Day</Text>
+                <Text style={styles.summaryValue}>{selectedIsVoid ? `Day ${selectedDayIndex + 1} · Void` : `Day ${selectedDayIndex + 1} · ${selectedPercent}%`}</Text>
+              </View>
+              <View style={styles.summaryPill}>
+                <Text style={styles.summaryLabel}>Month Avg</Text>
+                <Text style={styles.summaryValue}>{monthAverage}%</Text>
               </View>
               <View style={styles.summaryPill}>
                 <Text style={styles.summaryLabel}>Green Days</Text>
-                <Text style={styles.summaryValue}>{greenDays}/7 this week</Text>
-              </View>
-              <View style={styles.summaryPill}>
-                <Text style={styles.summaryLabel}>Logging To</Text>
-                <Text style={styles.summaryValue}>{logWeekday} · Day {logDayIndex + 1}</Text>
+                <Text style={styles.summaryValue}>{greenDays}/30</Text>
               </View>
             </View>
 
-            <View style={styles.viewToggle}>
+            <View style={styles.monthRow}>
+              <TouchableOpacity
+                style={[styles.monthButton, selectedMonthIndex === 0 && { opacity: 0.42 }]}
+                onPress={() => handleShiftMonth(-1)}
+                disabled={selectedMonthIndex === 0}
+              >
+                <AppIcon name="chevron-left" size={18} color={glass.colors.textSoft} strokeWidth={2.2} />
+              </TouchableOpacity>
+              <View style={styles.monthLabelWrap}>
+                <Text style={styles.monthLabel}>{selectedMonthLabel}</Text>
+                <Text style={styles.monthHint}>
+                  {selectedMonthKey === currentMonthKey
+                    ? 'Live month! Logging updates here right now!'
+                    : viewingFuture
+                      ? 'Future month! Great for planned void days and prep!'
+                      : 'Past month! Scroll back through your story any time!'}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.monthButton, selectedMonthIndex === availableMonthKeys.length - 1 && { opacity: 0.42 }]}
+                onPress={() => handleShiftMonth(1)}
+                disabled={selectedMonthIndex === availableMonthKeys.length - 1}
+              >
+                <AppIcon name="chevron-right" size={18} color={glass.colors.textSoft} strokeWidth={2.2} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.toggleRow}>
               {['month', 'week', 'day'].map((mode) => {
-                const active = viewMode === mode;
+                const active = mode === viewMode;
                 return (
                   <TouchableOpacity
                     key={mode}
                     style={[styles.toggleButton, active && styles.toggleButtonActive]}
                     onPress={() => handleViewChange(mode)}
                   >
-                    <View pointerEvents="none" style={styles.toggleGloss} />
                     <Text style={[styles.toggleText, active && styles.toggleTextActive]}>
                       {mode[0].toUpperCase() + mode.slice(1)}
                     </Text>
@@ -441,45 +579,149 @@ export default function CalendarScreen({ user, onUserChange, theme }) {
         </FadeInView>
 
         <FadeInView delay={140}>
-          <GlassSurface style={styles.mapCard} radius={glass.radius.xl} fillColor={glass.colors.panelDeep}>
-            <View style={styles.mapHeader}>
-              <Text style={styles.mapHeading}>{mapHeading}</Text>
-              <Text style={styles.mapHint}>
-                Void days wash into neutral grey, while active days keep the mastery color scale.
+          <GlassSurface style={styles.boardCard} radius={glass.radius.xl} fillColor={glass.colors.panelDeep}>
+            <View style={styles.boardHeader}>
+              <Text style={styles.boardTitle}>
+                {viewMode === 'month' ? '30-day board!' : viewMode === 'week' ? 'Weekly slide carousel!' : 'Focused day card!'}
+              </Text>
+              <Text style={styles.boardHint}>
+                {viewMode === 'month'
+                  ? 'The month view stays compact and readable, so percentages never stretch awkwardly again!'
+                  : viewMode === 'week'
+                    ? 'Swipe left and right to move through the month in seven-day chunks, with easier square cards for quick scanning!'
+                    : 'This is your close-up look at one day, with the coach readout right below!'}
               </Text>
             </View>
 
             {viewMode === 'month' && (
+              <View style={styles.monthGrid}>
+                {monthValues.map((percentValue, index) => {
+                  const zoneConfig = getZoneConfig(percentValue);
+                  const selected = index === selectedDayIndex;
+                  const voided = isVoidDay(user, index, selectedMonthKey);
+
+                  return (
+                    <TouchableOpacity
+                      key={`month-${selectedMonthKey}-${index}`}
+                      style={styles.monthCellWrap}
+                      onPress={() => handleDaySelect(index)}
+                    >
+                      <View style={[styles.monthCell, getCellState({ zoneConfig, selected, voided, accentStrong: theme?.accentStrong })]}>
+                        <Text style={styles.monthCellDay}>Day {index + 1}</Text>
+                        <Text style={styles.monthCellValue}>{voided ? 'VOID' : `${percentValue}%`}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
+            {viewMode === 'week' && (
               <>
-                <View style={styles.weekHeaderRow}>
-                  {DAY_LABELS.map((day) => (
-                    <View key={day} style={styles.weekHeaderCell}>
-                      <Text style={styles.weekHeaderText}>{day}</Text>
+                <FlatList
+                  ref={weekListRef}
+                  data={weekSlides}
+                  horizontal
+                  pagingEnabled
+                  decelerationRate="fast"
+                  keyExtractor={(_, index) => `week-slide-${selectedMonthKey}-${index}`}
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.weekCarousel}
+                  renderItem={({ item, index }) => (
+                    <View style={[styles.weekSlide, { width: slideWidth }]}>
+                      <View style={styles.weekSlideGrid}>
+                        {item.map((day, dayIndex) => {
+                          if (!day) {
+                            return (
+                              <View
+                                key={`empty-${index}-${dayIndex}`}
+                                style={[
+                                  styles.weekDayCard,
+                                  {
+                                    width: weekCellSize,
+                                    backgroundColor: 'rgba(255,255,255,0.02)',
+                                    borderColor: 'rgba(255,255,255,0.05)',
+                                    opacity: 0.28
+                                  }
+                                ]}
+                              />
+                            );
+                          }
+
+                          const zoneConfig = getZoneConfig(day.percent);
+                          const selected = day.dayIndex === selectedDayIndex;
+
+                          return (
+                            <TouchableOpacity
+                              key={`week-${day.dayIndex}`}
+                              onPress={() => handleDaySelect(day.dayIndex)}
+                            >
+                              <View
+                                style={[
+                                  styles.weekDayCard,
+                                  { width: weekCellSize },
+                                  getCellState({
+                                    zoneConfig,
+                                    selected,
+                                    voided: day.isVoid,
+                                    accentStrong: theme?.accentStrong
+                                  })
+                                ]}
+                              >
+                                <Text style={styles.weekLabel}>{day.label}</Text>
+                                <Text style={styles.weekPercent}>{day.isVoid ? 'VOID' : `${day.percent}%`}</Text>
+                                <Text style={styles.weekMeta}>Day {day.dayIndex + 1}</Text>
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
                     </View>
+                  )}
+                />
+
+                <View style={styles.carouselDots}>
+                  {weekSlides.map((_, index) => (
+                    <View
+                      key={`dot-${index}`}
+                      style={[
+                        styles.carouselDot,
+                        index === selectedWeekSlide && styles.carouselDotActive
+                      ]}
+                    />
                   ))}
                 </View>
-                <View style={styles.monthGrid}>{monthCells}</View>
               </>
             )}
 
-            {viewMode === 'week' && <View style={styles.weekGrid}>{weekCells}</View>}
-
             {viewMode === 'day' && (
-              <TouchableOpacity onPress={() => handleCellPress(selectedDayIndex)}>
-                <View style={[styles.dayCell, getCellState({ percent: selectedPercent, zoneConfig: selectedZone, selected: true, voided: selectedIsVoid })]}>
-                  <View>
-                    <Text style={styles.cellDay}>{selectedWeekday} · Day {selectedDayIndex + 1}</Text>
-                    <Text style={styles.cellDetail}>
-                      {selectedIsVoid ? 'Excluded from scoring' : 'Focused readout for the currently selected day'}
-                    </Text>
-                  </View>
-                  {selectedIsVoid ? (
-                    <Text style={styles.cellVoid}>VOID DAY</Text>
-                  ) : (
-                    <Text style={styles.cellPercentLarge}>{selectedPercent}%</Text>
-                  )}
+              <View
+                style={[
+                  styles.dayCard,
+                  getCellState({
+                    zoneConfig: selectedZone,
+                    selected: true,
+                    voided: selectedIsVoid,
+                    accentStrong: theme?.accentStrong
+                  })
+                ]}
+              >
+                <View>
+                  <Text style={styles.dayTitle}>{DAY_LABELS[selectedDayIndex % 7]} · Day {selectedDayIndex + 1}</Text>
+                  <Text style={styles.dayHint}>
+                    {selectedMonthKey === currentMonthKey
+                      ? 'Live day! This is the score your current session is chasing!'
+                      : viewingFuture
+                        ? 'Future planning day! Great for setting expectations and recovery!'
+                        : 'Past day! A quick look back at how that session landed!'}
+                  </Text>
                 </View>
-              </TouchableOpacity>
+                {selectedIsVoid ? (
+                  <Text style={styles.voidText}>VOID DAY</Text>
+                ) : (
+                  <Text style={styles.dayPercent}>{selectedPercent}%</Text>
+                )}
+              </View>
             )}
           </GlassSurface>
         </FadeInView>
@@ -488,28 +730,29 @@ export default function CalendarScreen({ user, onUserChange, theme }) {
           <GlassSurface
             style={styles.detailCard}
             radius={22}
-            fillColor={selectedIsVoid ? glass.colors.voidFill : `${selectedZone.color}14`}
+            fillColor={selectedIsVoid ? glass.colors.voidFill : `${selectedZone.color}16`}
             accentColor={selectedIsVoid ? '#d4dbe8' : selectedZone.color}
-            borderColor={selectedIsVoid ? glass.colors.voidEdge : `${selectedZone.color}55`}
+            borderColor={selectedIsVoid ? glass.colors.voidEdge : `${selectedZone.color}5e`}
           >
             <Text style={styles.detailTitle}>
-              {selectedWeekday} · {selectedIsVoid ? 'Void day' : `${selectedPercent}%`}
+              {selectedMonthLabel} · Day {selectedDayIndex + 1}
             </Text>
             <Text style={styles.detailCopy}>{detailCopy}</Text>
             <Text style={styles.detailFoot}>
-              Logging currently updates {logWeekday} (Day {logDayIndex + 1}) for showcase consistency.
+              {selectedMonthKey === currentMonthKey
+                ? `Live logging is feeding ${loggingMonthLabel} Day ${logDayIndex + 1} right now, so the showcase always feels active!`
+                : `You are browsing ${selectedMonthLabel}, while live logging still lands in ${loggingMonthLabel} Day ${logDayIndex + 1}!`}
             </Text>
-            {user.premium && (
-              <GlassButton
-                title={selectedIsVoid ? 'Remove Void Day' : 'Mark Sick/Travel Void Day'}
-                onPress={handleToggleVoidDay}
-                variant="secondary"
-                style={{ marginTop: 6 }}
-              />
-            )}
+            <GlassButton
+              title={selectedIsVoid ? 'Remove Void Day' : viewingFuture ? 'Reserve Future Void Day' : 'Mark Sick / Travel Void Day'}
+              onPress={handleToggleVoidDay}
+              variant="secondary"
+              style={{ marginTop: 6 }}
+            />
           </GlassSurface>
         </FadeInView>
-      </ScrollView>
+        </ScrollView>
+      </ScreenTransitionView>
     </SafeAreaView>
   );
 }

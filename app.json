@@ -4,13 +4,22 @@
     "slug": "reptrak",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "ios": {
       "supportsTabletMode": true,
-      "bundleIdentifier": "com.reptrak.app"
+      "bundleIdentifier": "com.reptrak.app",
+      "icon": "./assets/icon.png"
     },
     "android": {
-      "package": "com.reptrak.app"
+      "package": "com.reptrak.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2B2F67"
+      }
     },
-    "scheme": "reptrak"
+    "scheme": "reptrak",
+    "plugins": [
+      "expo-notifications"
+    ]
   }
 }

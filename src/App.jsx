@@ -1,17 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { loadUser, persistUser, syncDerivedState, isOnboarded } from './lib/reptrak';
+import {
+  clearStoredUser,
+  createDefaultUser,
+  isOnboarded,
+  loadUser,
+  persistUser,
+  syncDerivedState
+} from './lib/reptrak';
+import { clearNotifications, syncNotificationsForUser } from './lib/notifications';
 import DashboardScreen from './screens/DashboardScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import PremiumScreen from './screens/PremiumScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
-import { glass } from './theme/glass';
+import { LiquidTabBar } from './components/LiquidTabBar';
+import { LoadingScreen } from './components/LoadingScreen';
 import { getThemePalette } from './theme/palette';
 
 const Tab = createBottomTabNavigator();
@@ -21,18 +26,33 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     async function initializeApp() {
       try {
-        const loadedUser = await loadUser();
+        const [loadedUser] = await Promise.all([
+          loadUser(),
+          new Promise((resolve) => setTimeout(resolve, 900))
+        ]);
+
+        if (!mounted) return;
         setUser(syncDerivedState(loadedUser));
-        setIsLoading(false);
       } catch (error) {
         console.error('Failed to load user:', error);
-        setIsLoading(false);
+        if (!mounted) return;
+        setUser(syncDerivedState(createDefaultUser()));
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     initializeApp();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const updateUser = useCallback((nextUserOrUpdater, options = {}) => {
@@ -48,128 +68,87 @@ export default function App() {
     });
   }, []);
 
-  if (isLoading || !user) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a1220' }}>
-        <ActivityIndicator size="large" color="#ffffff" />
-      </View>
-    );
-  }
+  const resetSession = useCallback(async () => {
+    await clearNotifications();
+    await clearStoredUser();
+    setUser(syncDerivedState(createDefaultUser(new Date())));
+  }, []);
 
-  const theme = getThemePalette(user.theme);
+  const theme = useMemo(
+    () => getThemePalette(user?.theme || 'aqua'),
+    [user?.theme]
+  );
+  const navigationTheme = useMemo(() => ({
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: theme?.accent || '#6FD9FF',
+      background: 'transparent',
+      card: 'transparent',
+      border: 'transparent',
+      text: '#ffffff'
+    }
+  }), [theme]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (!isOnboarded(user)) {
+      clearNotifications();
+      return;
+    }
+
+    syncNotificationsForUser(user).catch((error) => {
+      console.error('Failed to sync notifications:', error);
+    });
+  }, [
+    user?.name,
+    user?.habit,
+    user?.notificationSettings?.enabled,
+    user?.notificationSettings?.reminderTime,
+    user?.notificationSettings?.tone
+  ]);
+
+  if (isLoading || !user) {
+    return <LoadingScreen theme={theme} />;
+  }
 
   if (!isOnboarded(user)) {
     return <OnboardingScreen user={user} onUserChange={updateUser} theme={theme} />;
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarActiveTintColor: theme.accentStrong,
-          tabBarInactiveTintColor: 'rgba(230, 241, 255, 0.55)',
-          tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: '800',
-            letterSpacing: 0.3,
-            paddingBottom: 2
-          },
-          tabBarItemStyle: {
-            paddingVertical: 6,
-            marginHorizontal: 4,
-            borderRadius: 999
-          },
-          tabBarStyle: {
-            position: 'absolute',
-            left: 14,
-            right: 14,
-            bottom: 18,
-            borderRadius: 999,
-            height: 78,
-            paddingBottom: 10,
-            paddingTop: 10,
-            backgroundColor: 'transparent',
-            borderTopWidth: 0,
-            elevation: 0
-          },
-          tabBarActiveBackgroundColor: theme.glow,
-          tabBarInactiveBackgroundColor: 'rgba(255,255,255,0.05)',
-          tabBarBackground: () => (
-            <View style={{ flex: 1, borderRadius: 999, overflow: 'hidden' }}>
-              <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFillObject} />
-              <LinearGradient
-                colors={['rgba(233, 245, 255, 0.16)', 'rgba(90, 127, 201, 0.12)', 'rgba(18, 22, 52, 0.34)']}
-                locations={[0, 0.42, 1]}
-                style={StyleSheet.absoluteFillObject}
-              />
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 2,
-                  right: 2,
-                  top: 2,
-                  height: '52%',
-                  borderTopLeftRadius: 999,
-                  borderTopRightRadius: 999,
-                  backgroundColor: 'rgba(255, 255, 255, 0.12)'
-                }}
-              />
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 2,
-                  right: 2,
-                  top: 2,
-                  bottom: 2,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  borderColor: glass.colors.borderInner
-                }}
-              />
-            </View>
-          ),
-          headerStyle: {
-            backgroundColor: `${theme.bgElevated}F0`,
-            borderBottomColor: glass.colors.borderSoft,
-            borderBottomWidth: 1
-          },
-          headerTintColor: glass.colors.textMain,
-          headerTitleStyle: { color: glass.colors.textMain },
-          tabBarIcon: ({ color, size, focused }) => {
-            const names = {
-              Home: focused ? 'home' : 'home-outline',
-              Calendar: focused ? 'calendar' : 'calendar-outline',
-              Profile: focused ? 'person-circle' : 'person-circle-outline',
-              Premium: focused ? 'diamond' : 'diamond-outline'
-            };
-            return <Ionicons name={names[route.name]} size={size + 1} color={color} />;
+        detachInactiveScreens={false}
+        lazy={false}
+        tabBar={(props) => <LiquidTabBar {...props} theme={theme} />}
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          animation: 'fade',
+          sceneStyle: {
+            backgroundColor: 'transparent'
           }
-        })}
+        }}
       >
-        <Tab.Screen
-          name="Home"
-          options={{ title: 'Dashboard' }}
-        >
+        <Tab.Screen name="Home">
           {() => <DashboardScreen user={user} onUserChange={updateUser} theme={theme} />}
         </Tab.Screen>
-        <Tab.Screen
-          name="Calendar"
-          options={{ title: 'Calendar' }}
-        >
+        <Tab.Screen name="Calendar">
           {() => <CalendarScreen user={user} onUserChange={updateUser} theme={theme} />}
         </Tab.Screen>
-        <Tab.Screen
-          name="Profile"
-          options={{ title: 'Profile' }}
-        >
-          {() => <ProfileScreen user={user} theme={theme} />}
+        <Tab.Screen name="Profile">
+          {() => (
+            <ProfileScreen
+              user={user}
+              onUserChange={updateUser}
+              onResetSession={resetSession}
+              theme={theme}
+            />
+          )}
         </Tab.Screen>
-        <Tab.Screen
-          name="Premium"
-          options={{ title: 'Premium' }}
-        >
+        <Tab.Screen name="Premium">
           {() => <PremiumScreen user={user} onUserChange={updateUser} theme={theme} />}
         </Tab.Screen>
       </Tab.Navigator>

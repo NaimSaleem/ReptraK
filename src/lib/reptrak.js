@@ -122,6 +122,20 @@ export function getMonthLabel(monthKey) {
   });
 }
 
+export function getMonthOffsetFromCurrent(monthKey) {
+  const current = monthKeyToDate(getCurrentMonthKey());
+  const selected = monthKeyToDate(monthKey);
+  return (selected.getFullYear() - current.getFullYear()) * 12 + (selected.getMonth() - current.getMonth());
+}
+
+export function isFutureMonthKey(monthKey) {
+  return getMonthOffsetFromCurrent(monthKey) > 0;
+}
+
+export function isPastMonthKey(monthKey) {
+  return getMonthOffsetFromCurrent(monthKey) < 0;
+}
+
 export function getAvailableMonthKeys(accountCreatedAt, futureMonths = FUTURE_MONTH_WINDOW) {
   const start = getMonthStart(accountCreatedAt);
   const end = getMonthStart(new Date());
@@ -134,6 +148,25 @@ export function getAvailableMonthKeys(accountCreatedAt, futureMonths = FUTURE_MO
     cursor.setMonth(cursor.getMonth() + 1);
   }
   return keys;
+}
+
+export function selectMonth(user, monthKey) {
+  const normalized = normalizeUser(user);
+  const available = getAvailableMonthKeys(normalized.accountCreatedAt);
+
+  if (!available.includes(monthKey)) {
+    return normalized;
+  }
+
+  return {
+    ...normalized,
+    selectedMonthKey: monthKey,
+    monthRecords: ensureMonthRecord(normalized.monthRecords, monthKey),
+    voidDaysByMonth: {
+      ...normalized.voidDaysByMonth,
+      [monthKey]: getVoidDaysForMonth(normalized, monthKey)
+    }
+  };
 }
 
 function createNotificationSettings() {

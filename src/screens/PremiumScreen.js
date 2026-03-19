@@ -13,6 +13,8 @@ import { AmbientGlow } from '../components/AmbientGlow';
 import { FadeInView } from '../components/FadeInView';
 import { GlassButton } from '../components/GlassButton';
 import { GlassSurface } from '../components/GlassSurface';
+import { ReptraKWordmark } from '../components/BrandLogo';
+import { ScreenTransitionView } from '../components/ScreenTransitionView';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
 import { THEMES } from '../theme/palette';
@@ -33,7 +35,7 @@ const styles = StyleSheet.create({
     letterSpacing: -1,
     fontWeight: '800',
     color: glass.colors.textMain,
-    marginBottom: 14
+    marginBottom: 10
   },
   subtitle: {
     fontSize: 14,
@@ -163,10 +165,11 @@ const styles = StyleSheet.create({
   },
   themeGrid: {
     flexDirection: 'row',
-    gap: 10
+    gap: 10,
+    flexWrap: 'wrap'
   },
   themeCard: {
-    flex: 1,
+    width: '48%',
     borderRadius: 14,
     borderWidth: 1,
     borderColor: glass.colors.borderSoft,
@@ -193,32 +196,37 @@ const styles = StyleSheet.create({
 const FEATURES = [
   {
     title: 'Daily habit tracking',
-    description: 'Log your daily progress across multiple habits',
+    description: 'Log your focus habit and your two support habits without clutter',
     isPremium: false
   },
   {
     title: 'Weekly calendar view',
-    description: 'See your week at a glance with visual completion states',
+    description: 'Swipe through weekly slides and spot streak energy fast',
     isPremium: false
   },
   {
     title: 'Streak tracking',
-    description: 'Build momentum with consecutive day streaks',
+    description: 'Build momentum with color zones that stay easy to read',
     isPremium: false
   },
   {
     title: 'Weekly compare-and-contrast',
-    description: 'Detailed analysis comparing your best and weakest periods',
+    description: 'See best week, weakest week, and your current trend in one glance',
     isPremium: true
   },
   {
-    title: 'Theme switching',
-    description: 'Change visual themes without losing your data or progress',
+    title: 'ROYGBIV themes',
+    description: 'Swap through red, orange, yellow, green, blue, indigo, and violet palettes',
     isPremium: true
   },
   {
     title: 'Sick/Travel void days',
-    description: 'Exclude disrupted days from streak and trend calculations',
+    description: 'Grey out disrupted days now or reserve them ahead of time for future plans',
+    isPremium: true
+  },
+  {
+    title: 'Personalized coach reminders',
+    description: 'Get local reminders tuned to your name, your focus habit, and your preferred coach tone',
     isPremium: true
   }
 ];
@@ -242,11 +250,13 @@ export default function PremiumScreen({ user, onUserChange, theme }) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
       <AmbientGlow theme={theme} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScreenTransitionView axis="x">
+        <ScrollView contentContainerStyle={styles.scrollContent}>
         <FadeInView>
+          <ReptraKWordmark width={152} height={38} />
           <Text style={styles.title}>Premium</Text>
           <Text style={styles.subtitle}>
-            Free stays focused on daily tracking. Premium adds compare-and-contrast insights, trend detail, and deeper coaching.
+            Free stays focused and clean! Premium adds smarter comparisons, richer reminders, future planning tools, and the full color playground!
           </Text>
         </FadeInView>
 
@@ -286,7 +296,7 @@ export default function PremiumScreen({ user, onUserChange, theme }) {
           >
             <Text style={styles.pricingTitle}>Upgrade to Premium</Text>
             <Text style={styles.pricingCopy}>
-              Unlock advanced analytics, weekly insights, and detailed progress tracking.
+              Unlock advanced analytics, coaching extras, theme control, and future-planning tools that make the app feel truly alive!
             </Text>
 
             <View style={styles.tierGrid}>
@@ -346,7 +356,8 @@ export default function PremiumScreen({ user, onUserChange, theme }) {
             />
           </GlassSurface>
         </FadeInView>
-      </ScrollView>
+        </ScrollView>
+      </ScreenTransitionView>
     </SafeAreaView>
   );
 }

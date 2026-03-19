@@ -14,6 +14,7 @@ import { AmbientGlow } from '../components/AmbientGlow';
 import { FadeInView } from '../components/FadeInView';
 import { GlassSurface } from '../components/GlassSurface';
 import { OnboardingBackdrop } from '../components/OnboardingBackdrop';
+import { ReptraKWordmark } from '../components/BrandLogo';
 import { glass } from '../theme/glass';
 import { layout } from '../theme/layout';
 
@@ -25,99 +26,94 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: 12,
-    paddingBottom: 38
+    paddingTop: 22,
+    paddingBottom: 48
   },
   shell: {
     width: '100%',
-    maxWidth: 460,
+    maxWidth: 392,
     alignSelf: 'center',
-    display: 'flex',
-    gap: 14
+    gap: 18
   },
   hero: {
-    display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 6
-  },
-  titleRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'center',
-    gap: 8
-  },
-  brandMark: {
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 2.2,
-    color: glass.colors.accentStrong,
-    textTransform: 'uppercase'
+    gap: 12,
+    marginTop: 12,
+    paddingHorizontal: 14
   },
   header: {
-    fontSize: 42,
+    maxWidth: 336,
+    fontSize: 31,
+    lineHeight: 35,
     fontWeight: '800',
     color: glass.colors.textMain,
-    letterSpacing: -1.1,
+    letterSpacing: -0.9,
     textAlign: 'center'
   },
   subheader: {
-    fontSize: 16,
-    lineHeight: 22,
+    maxWidth: 316,
+    fontSize: 14,
+    lineHeight: 20,
     color: glass.colors.textSoft,
     marginBottom: 2,
     textAlign: 'center'
   },
   card: {
-    display: 'flex',
-    paddingHorizontal: 14,
-    paddingVertical: 16,
+    width: '100%',
+    maxWidth: 378,
+    alignSelf: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 20,
     gap: 10,
     overflow: 'hidden'
   },
   stepTitle: {
     color: glass.colors.textMain,
-    fontSize: 21,
+    fontSize: 20,
+    lineHeight: 24,
     fontWeight: '800',
     letterSpacing: -0.5,
     textAlign: 'center'
   },
   stepHint: {
     color: glass.colors.textSoft,
-    fontSize: 14,
+    maxWidth: 300,
+    alignSelf: 'center',
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: 'center',
     marginBottom: 2
   },
   inputContainer: {
-    minHeight: 56,
+    minHeight: 58,
     paddingHorizontal: 16,
     justifyContent: 'center',
-    marginTop: 6
+    marginTop: 2
   },
   input: {
     color: glass.colors.textMain,
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     letterSpacing: -0.5
   },
   label: {
     color: glass.colors.textSoft,
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 4
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginTop: 2
   },
   optionContainer: {
-    display: 'flex',
     flexDirection: 'row',
-    gap: 9,
     flexWrap: 'wrap',
-    marginTop: 4
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 2
   },
   optionButton: {
-    display: 'flex',
-    width: '31%',
-    minWidth: 92,
+    width: '48.5%',
+    minWidth: 0,
+    minHeight: 50,
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 13,
@@ -135,14 +131,15 @@ const styles = StyleSheet.create({
   optionText: {
     color: glass.colors.textSoft,
     fontSize: 13,
-    fontWeight: '600'
+    fontWeight: '700',
+    textAlign: 'center'
   },
   optionTextActive: {
     color: '#13203e',
     fontWeight: '700'
   },
   buttonSpacing: {
-    marginTop: 6
+    marginTop: 10
   },
   footerSpacing: {
     height: 10
@@ -178,7 +175,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
 
   const handleSaveName = () => {
     if (!nameInput.trim()) {
-      Alert.alert('Please enter your name');
+      Alert.alert('Name needed!', 'Give your coach a name to cheer for first!');
       return;
     }
     const updatedUser = {
@@ -192,7 +189,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
   const handleSaveHabit = () => {
     const nextHabit = habitInput.trim() || selectedHabit;
     if (!nextHabit) {
-      Alert.alert('Please enter or select a habit');
+      Alert.alert('Pick a habit!', 'Choose one main habit so we can build your mastery track!');
       return;
     }
     const updatedUser = {
@@ -233,7 +230,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
   const handleSaveFrequency = () => {
     const nextFrequency = Number(frequencyInput) || Number(selectedFrequency);
     if (!nextFrequency) {
-      Alert.alert('Please select a frequency');
+      Alert.alert('Set a target!', 'Choose how many sessions you want each week so the tracker knows what to aim for!');
       return;
     }
 
@@ -259,29 +256,27 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
     <SafeAreaView style={[styles.container, { backgroundColor: theme?.bgBase || '#1d1a46' }]}>
       <AmbientGlow theme={theme} mode="onboarding" />
       <OnboardingBackdrop theme={theme} />
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.shell}>
           <FadeInView style={styles.hero}>
-            <View style={styles.titleRow}>
-              <Text style={styles.brandMark}>ReptraK</Text>
-            </View>
+            <ReptraKWordmark width={198} height={52} />
             <Text style={styles.header}>
-              {step === 1 ? 'Welcome' : step === 2 ? 'Focus Habit' : 'Weekly Target'}
+              {step === 1 ? 'Welcome to ReptraK!' : step === 2 ? 'Pick your focus habit!' : 'Set your weekly rhythm!'}
             </Text>
             <Text style={styles.subheader}>
               {step === 1
-                ? 'Build habits in a polished, glossy system'
+                ? 'We’ll set up your account in three quick steps so everything feels easy right away!'
                 : step === 2
-                  ? 'Master one main habit and keep momentum'
-                  : 'Choose a cadence you can sustain'}
+                  ? 'One main habit leads the scoreboard, and your support habits can come in afterward!'
+                  : 'Choose a target that feels realistic, friendly, and easy to repeat!'}
             </Text>
           </FadeInView>
 
           {step === 1 && (
             <FadeInView delay={80}>
               <GlassSurface style={styles.card} radius={24} fillColor={glass.colors.panelDeep}>
-                <Text style={styles.stepTitle}>Let&apos;s set up your account</Text>
-                <Text style={styles.stepHint}>Start with your display name.</Text>
+                <Text style={styles.stepTitle}>Start with your name!</Text>
+                <Text style={styles.stepHint}>This is the name your coach will use when cheering you on!</Text>
                 <Text style={styles.label}>What&apos;s your name?</Text>
                 <GlassSurface style={styles.inputContainer} radius={16} fillColor={glass.colors.panel}>
                   <TextInput
@@ -292,7 +287,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
                     onChangeText={setNameInput}
                   />
                 </GlassSurface>
-                <GlassButton title="Continue" onPress={handleSaveName} style={styles.buttonSpacing} />
+                <GlassButton title="Continue!" onPress={handleSaveName} style={styles.buttonSpacing} />
               </GlassSurface>
             </FadeInView>
           )}
@@ -300,8 +295,8 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
           {step === 2 && (
             <FadeInView delay={80}>
               <GlassSurface style={styles.card} radius={24} fillColor={glass.colors.panelDeep}>
-                <Text style={styles.stepTitle}>Choose your focus</Text>
-                <Text style={styles.stepHint}>This becomes your primary mastery track.</Text>
+                <Text style={styles.stepTitle}>Choose your focus!</Text>
+                <Text style={styles.stepHint}>This becomes the main habit that drives your daily score!</Text>
                 <Text style={styles.label}>Popular habits</Text>
                 <View style={styles.optionContainer}>
                   {HABIT_CHOICES.map((habit) => (
@@ -340,7 +335,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
                     }}
                   />
                 </GlassSurface>
-                <GlassButton title="Continue" onPress={handleSaveHabit} style={styles.buttonSpacing} />
+                <GlassButton title="Next Step!" onPress={handleSaveHabit} style={styles.buttonSpacing} />
               </GlassSurface>
             </FadeInView>
           )}
@@ -348,8 +343,8 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
           {step === 3 && (
             <FadeInView delay={80}>
               <GlassSurface style={styles.card} radius={24} fillColor={glass.colors.panelDeep}>
-                <Text style={styles.stepTitle}>Set weekly target</Text>
-                <Text style={styles.stepHint}>Adjust anytime in settings later.</Text>
+                <Text style={styles.stepTitle}>Set your weekly target!</Text>
+                <Text style={styles.stepHint}>Keep it light for now. You can tune this later any time you want!</Text>
                 <Text style={styles.label}>How many sessions per week?</Text>
                 <View style={styles.optionContainer}>
                   {FREQUENCY_OPTIONS.map((option) => (
@@ -375,7 +370,7 @@ export default function OnboardingScreen({ user, onUserChange, theme }) {
                     </TouchableOpacity>
                   ))}
                 </View>
-                <GlassButton title="Start Tracking" onPress={handleSaveFrequency} style={styles.buttonSpacing} />
+                <GlassButton title="Start Tracking!" onPress={handleSaveFrequency} style={styles.buttonSpacing} />
               </GlassSurface>
             </FadeInView>
           )}

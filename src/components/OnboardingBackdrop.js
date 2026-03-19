@@ -1,19 +1,17 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
-
-const AnimatedFA = Animated.createAnimatedComponent(FontAwesome5);
+import { AppIcon } from './AppIcon';
 
 const ICONS = [
-  'book-reader',
-  'running',
+  'book',
+  'motion',
   'dumbbell',
   'brain',
   'clock',
   'calendar-check',
   'seedling',
-  'bullseye',
-  'chart-line'
+  'target',
+  'chart'
 ];
 
 const styles = StyleSheet.create({
@@ -25,11 +23,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    opacity: 0.9
   },
-  icon: {
-    textShadowColor: 'rgba(137, 231, 255, 0.42)',
-    textShadowRadius: 12
+  iconWrap: {
+    shadowColor: '#6FD9FF',
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 }
   }
 });
 
@@ -66,7 +67,7 @@ function FloatingItem({ item }) {
 
   const iconOpacity = t.interpolate({
     inputRange: [0, 0.2, 0.85, 1],
-    outputRange: [0.16, 0.38, 0.18, 0]
+    outputRange: [0.14, 0.42, 0.2, 0]
   });
 
   return (
@@ -80,16 +81,14 @@ function FloatingItem({ item }) {
         }
       ]}
     >
-      <AnimatedFA
-        name={item.icon}
-        size={item.size}
-        solid
-        style={[
-          styles.icon,
-          { opacity: Animated.multiply(emojiOpacity, iconOpacity) }
-        ]}
-        color={item.color}
-      />
+      <Animated.View style={[styles.iconWrap, { opacity: Animated.multiply(emojiOpacity, iconOpacity) }]}>
+        <AppIcon
+          name={item.icon}
+          size={item.size}
+          color={item.color}
+          strokeWidth={1.9}
+        />
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -102,9 +101,9 @@ export function OnboardingBackdrop({ theme }) {
       icon: ICONS[idx % ICONS.length],
       left: `${6 + ((idx * 12) % 84)}%`,
       top: `${58 + ((idx * 9) % 36)}%`,
-      size: 16 + (idx % 3) * 2,
-      duration: 2400 + (idx % 5) * 220,
-      travel: 190 + (idx % 7) * 20,
+      size: 20 + (idx % 3) * 2,
+      duration: 1850 + (idx % 5) * 170,
+      travel: 170 + (idx % 7) * 18,
       color: iconColor
     }))
   ), [iconColor]);
